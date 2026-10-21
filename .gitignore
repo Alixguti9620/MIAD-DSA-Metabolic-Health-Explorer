@@ -1,0 +1,109 @@
+# ==========================================
+# MIAD - Despliegue de Soluciones Analíticas
+# Metabolic Health Explorer
+# ==========================================
+
+# ------------------------------------------
+# 1. macOS
+# ------------------------------------------
+.DS_Store
+._*
+__MACOSX/
+.Spotlight-V100
+.Trashes
+
+# ------------------------------------------
+# 2. Python
+# ------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ------------------------------------------
+# 3. Entornos virtuales y Conda
+# ------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+conda-meta/
+.python-version
+
+# ------------------------------------------
+# 4. Jupyter Notebooks
+# ------------------------------------------
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# IMPORTANTE:
+# Los archivos .ipynb SI se versionan en Git.
+
+# ------------------------------------------
+# 5. Visual Studio Code e IDEs
+# ------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ------------------------------------------
+# 6. Variables de entorno y credenciales
+# ------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# ------------------------------------------
+# 7. DVC - Data Version Control
+# ------------------------------------------
+.dvc/cache/
+.dvc/tmp/
+
+# IMPORTANTE:
+# NO ignorar archivos .dvc
+# NO ignorar .dvc/config
+# NO ignorar .dvcignore
+# Los datasets deben gestionarse con dvc add.
+# Conservar los .gitignore generados por DVC.
+
+# ------------------------------------------
+# 8. Modelos entrenados
+# ------------------------------------------
+models/*.pkl
+models/*.joblib
+models/*.pickle
+models/*.onnx
+
+# ------------------------------------------
+# 9. Logs y archivos temporales
+# ------------------------------------------
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+
+# ------------------------------------------
+# 10. Archivos de sistema y caché
+# ------------------------------------------
+.cache/
+*.sqlite3
+
+# ------------------------------------------
+# 11. Docker
+# ------------------------------------------
+docker-compose.override.yml
