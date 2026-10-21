@@ -1,0 +1,10 @@
+[project]
+name = "miad-dsa-metabolic-health-explorer"
+version = "0.1.0"
+description = "Proyecto academico MIAD: exploracion NHANES y futuro prototipo de clasificacion de diabetes reportada"
+requires-python = ">=3.10"
+readme = "README.md"
+
+# Las dependencias ejecutables se conservan en requirements.txt.
+# Este archivo se usa por ahora para metadatos; NO ejecutar `pip install -e .`
+# hasta que exista un paquete Python con su configuracion de build.
