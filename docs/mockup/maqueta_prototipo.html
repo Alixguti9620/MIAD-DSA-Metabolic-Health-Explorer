@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maqueta Metabolic Health Explorer</title>
+<style>
+  :root {
+    --bg: #f3f4f6;
+    --paper: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #d1d5db;
+    --soft: #e5e7eb;
+    --fill: #f9fafb;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --pos: #c2410c;
+    --pos-soft: #ffedd5;
+    --note: #db2777;
+    --warn-bg: #fef3c7;
+    --warn-ink: #92400e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 28px; max-width: 820px; }
+  section.screen { margin-bottom: 56px; }
+  section.screen > h2 { font-size: 18px; margin: 0 0 4px; }
+  section.screen > p.sub { color: var(--muted); margin: 0 0 14px; }
+
+  /* Browser frame */
+  .frame { background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+           overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); width: 1200px; max-width: 100%; }
+  .chrome { display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+            background: var(--soft); border-bottom: 1px solid var(--line); }
+  .chrome i { width: 11px; height: 11px; border-radius: 50%; background: #cbd5e1; display: inline-block; }
+  .chrome .url { margin-left: 12px; flex: 1; background: var(--paper); border-radius: 6px;
+                 padding: 3px 10px; color: var(--muted); font-size: 12px; }
+  .appbar { display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  .brand { font-weight: 700; font-size: 16px; }
+  .brand small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+  .tabs { display: flex; gap: 4px; }
+  .tab { padding: 6px 14px; border-radius: 6px; color: var(--muted); border: 1px solid transparent; }
+  .tab.on { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .layout { display: grid; grid-template-columns: 250px 1fr; min-height: 560px; }
+  .side { background: var(--fill); border-right: 1px solid var(--line); padding: 18px 16px; }
+  .main { padding: 18px 22px; display: grid; gap: 16px; align-content: start; }
+
+  .lbl { font-size: 12px; color: var(--muted); margin: 14px 0 4px; font-weight: 600; }
+  .lbl:first-child { margin-top: 0; }
+  .input { border: 1px solid var(--line); background: var(--paper); border-radius: 6px; padding: 6px 10px; color: var(--ink); }
+  .input.sel::after { content: " ▾"; float: right; color: var(--muted); }
+  .range { position: relative; height: 22px; margin: 4px 4px 0; }
+  .range .track { position: absolute; top: 9px; left: 0; right: 0; height: 4px; background: var(--line); border-radius: 2px; }
+  .range .fillr { position: absolute; top: 9px; left: 0; right: 0; height: 4px; background: var(--accent); border-radius: 2px; }
+  .range .knob { position: absolute; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); border: 2px solid var(--accent); }
+  .range-vals { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 12px; background: var(--paper); }
+  .chip.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border-radius: 6px; padding: 8px 14px; font-weight: 600; text-align: center; }
+  .btn.ghost { background: var(--paper); color: var(--accent); border: 1px solid var(--accent); }
+
+  .row { display: grid; gap: 16px; }
+  .r4 { grid-template-columns: repeat(4, 1fr); }
+  .r2 { grid-template-columns: 1fr 1fr; }
+  .r32 { grid-template-columns: 3fr 2fr; }
+  .card { position: relative; border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: var(--paper); }
+  .card h3 { margin: 0 0 8px; font-size: 14px; }
+  .card .hint { color: var(--muted); font-size: 12px; }
+  .kpi .v { font-size: 26px; font-weight: 700; }
+  .kpi .k { color: var(--muted); font-size: 12px; }
+  .kpi.pos .v { color: var(--pos); }
+
+  .warn { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 10px 14px; font-size: 13px; position: relative; }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.t th, table.t td { border-bottom: 1px solid var(--soft); padding: 6px 8px; text-align: right; }
+  table.t th:first-child, table.t td:first-child { text-align: left; }
+  table.t th { color: var(--muted); font-weight: 600; }
+  .pos-t { color: var(--pos); font-weight: 600; }
+
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; font-size: 12px; }
+  .seg span { padding: 3px 10px; border-right: 1px solid var(--line); }
+  .seg span:last-child { border-right: 0; }
+  .seg span.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+  .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+  /* Annotation badges */
+  .n { position: absolute; top: -10px; left: -10px; width: 24px; height: 24px; border-radius: 50%;
+       background: var(--note); color: #fff; font-weight: 700; font-size: 13px;
+       display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--paper); z-index: 2; }
+  .rel { position: relative; }
+  .side > .n { top: 6px; left: 6px; }
+
+  .code { font-family: Consolas, "Courier New", monospace; font-size: 12px; background: #111827; color: #e5e7eb;
+          border-radius: 6px; padding: 10px 12px; white-space: pre; overflow: hidden; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #16a34a; }
+
+  .prob { height: 14px; border-radius: 7px; background: var(--soft); position: relative; overflow: hidden; }
+  .prob > div { position: absolute; inset: 0 auto 0 0; background: var(--pos); }
+  .thr { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); }
+
+  .pct { margin: 10px 0; }
+  .pct .bar { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #e5e7eb, #9ca3af); position: relative; }
+  .pct .mk { position: absolute; top: -5px; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; }
+  .pct .top { display: flex; justify-content: space-between; font-size: 12px; }
+
+  .placeholder { border: 2px dashed var(--line); border-radius: 8px; color: var(--muted); padding: 18px; text-align: center; font-size: 13px; }
+
+  /* Legend tables below each screen */
+  table.notes { width: 1200px; max-width: 100%; border-collapse: collapse; margin-top: 14px; background: var(--paper);
+                border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 13px; }
+  table.notes th, table.notes td { padding: 8px 12px; border-bottom: 1px solid var(--soft); text-align: left; vertical-align: top; }
+  table.notes th { background: var(--fill); color: var(--muted); }
+  table.notes td:first-child { width: 36px; }
+  .dot { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: var(--note); color: #fff;
+         font-weight: 700; font-size: 12px; align-items: center; justify-content: center; }
+
+  /* Architecture */
+  .arch { display: flex; align-items: stretch; gap: 0; }
+  .arch .box { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 12px 14px; width: 190px; }
+  .arch .box h4 { margin: 0 0 4px; font-size: 14px; }
+  .arch .box p { margin: 0; font-size: 12px; color: var(--muted); }
+  .arch .arrow { display: flex; flex-direction: column; justify-content: center; align-items: center;
+                 width: 86px; font-size: 11px; color: var(--muted); text-align: center; }
+  .arch .arrow::before { content: "⟶"; font-size: 22px; color: var(--ink); line-height: 1; }
+  .docker { border: 2px dashed var(--accent); border-radius: 12px; padding: 22px 16px 16px; position: relative; display: flex; }
+  .docker > span { position: absolute; top: -11px; left: 14px; background: var(--bg); color: var(--accent); font-weight: 600; font-size: 12px; padding: 0 6px; }
+
+  /* Screenshot mode: #p1, #p2, #p3, #arq show only that frame */
+  body.shot .page > h1, body.shot .page > .lead, body.shot table.notes,
+  body.shot section.screen > h2, body.shot section.screen > p.sub { display: none; }
+  body.shot section.screen { display: none; margin: 0; }
+  body.shot section.screen.only { display: block; }
+  body.shot .page { padding: 16px; max-width: none; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Metabolic Health Explorer: maqueta del prototipo</h1>
+  <p class="lead">Maqueta del tablero que consume el modelo a través de la API. Las cifras de las pantallas 1 y 2 vienen del EDA, 
+    sobre 2.220 registros con respuesta válida. Las gráficas son esquemáticas y los resultados del modelo
+    son ilustrativos o están marcados como pendientes, porque el modelo aún no se ha entrenado.</p>
+
+  <!-- ============ PANTALLA 1 ============ -->
+  <section class="screen" id="s-p1">
+    <h2>Pantalla 1: Exploración descriptiva (Módulo A)</h2>
+    <p class="sub">Responde a las preguntas de apoyo P1 (distribución de indicadores) y P2 (segmentación por edad, sexo y actividad).</p>
+    <div class="frame">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">localhost:8501 · Tablero (Streamlit)</span></div>
+      <div class="appbar">
+        <div class="brand">Metabolic Health Explorer <small>NHANES 2013–2014 · UCI 887</small></div>
+        <div class="tabs"><span class="tab on">Exploración</span><span class="tab">Simulador</span><span class="tab">Acerca del modelo</span></div>
+      </div>
+      <div class="layout">
+        <aside class="side rel">
+          <span class="n">1</span>
+          <div class="lbl">Filtros de segmento</div>
+          <div class="lbl">Edad (años)</div>
+          <div class="range"><div class="track"></div><div class="fillr"></div><div class="knob" style="left:-2px"></div><div class="knob" style="right:-2px"></div></div>
+          <div class="range-vals"><span>12</span><span>80</span></div>
+          <div class="lbl">Sexo registrado</div>
+          <div class="chips"><span class="chip on">Todos</span><span class="chip">Hombre</span><span class="chip">Mujer</span></div>
+          <div class="lbl">Actividad física vigorosa</div>
+          <div class="chips"><span class="chip on">Todos</span><span class="chip">Sí</span><span class="chip">No</span></div>
+          <div class="lbl">Respuestas DIQ010 incluidas</div>
+          <div class="input">1 = Sí · 2 = No</div>
+          <div class="hint" style="font-size:12px;color:var(--muted);margin-top:6px">Se excluyen 3 (prediabetes), 7 y 9 (respuestas especiales).</div>
+          <div style="margin-top:22px" class="btn ghost">Restablecer filtros</div>
+        </aside>
+        <div class="main">
+          <div class="row r4 rel">
+            <span class="n">2</span>
+            <div class="card kpi"><div class="k">Registros en el segmento</div><div class="v">2.220</div></div>
+            <div class="card kpi pos"><div class="k">Diabetes reportada (Sí)</div><div class="v">21 · 0,95%</div></div>
+            <div class="card kpi"><div class="k">Edad mediana · No / Sí</div><div class="v">40 / 60</div></div>
+            <div class="card kpi"><div class="k">IMC mediano · No / Sí</div><div class="v">26,7 / 29,1</div></div>
+          </div>
+          <div class="warn rel"><span class="n">6</span><b>n pequeño:</b> el grupo «Sí» tiene 21 registros. Con filtros activos puede quedar en menos de 10, así que las comparaciones son orientativas y no inferenciales.</div>
+          <div class="row r32">
+            <div class="card">
+              <span class="n">3</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <h3 style="margin:0">Distribución del indicador por grupo</h3>
+                <div class="seg"><span>IMC</span><span class="on">Glucosa ayunas</span><span>Glucosa OGTT</span><span>Insulina</span></div>
+              </div>
+              <svg viewBox="0 0 560 230" width="100%" height="230" role="img" aria-label="Boxplot esquemático de glucosa en ayunas por grupo">
+                <g font-size="11" fill="#6b7280">
+                  <line x1="60" y1="20" x2="60" y2="195" stroke="#d1d5db"/>
+                  <line x1="60" y1="195" x2="540" y2="195" stroke="#d1d5db"/>
+                  <text x="52" y="198" text-anchor="end">60</text>
+                  <text x="52" y="140" text-anchor="end">100</text>
+                  <text x="52" y="82" text-anchor="end">140</text>
+                  <text x="52" y="24" text-anchor="end">180+</text>
+                  <line x1="60" y1="137" x2="540" y2="137" stroke="#e5e7eb" stroke-dasharray="3 3"/>
+                  <text x="18" y="110" transform="rotate(-90 18 110)" text-anchor="middle">mg/dL</text>
+                </g>
+                <!-- No -->
+                <line x1="190" y1="110" x2="190" y2="175" stroke="#2563eb"/>
+                <rect x="150" y="135" width="80" height="26" fill="#dbeafe" stroke="#2563eb"/>
+                <line x1="150" y1="141" x2="230" y2="141" stroke="#2563eb" stroke-width="3"/>
+                <text x="190" y="215" text-anchor="middle" font-size="12" fill="#1f2937">No (n = 2.199) · mediana 97</text>
+                <!-- Si -->
+                <line x1="400" y1="25" x2="400" y2="160" stroke="#c2410c"/>
+                <rect x="360" y="85" width="80" height="58" fill="#ffedd5" stroke="#c2410c"/>
+                <line x1="360" y1="116" x2="440" y2="116" stroke="#c2410c" stroke-width="3"/>
+                <circle cx="400" cy="35" r="3" fill="#c2410c"/><circle cx="410" cy="48" r="3" fill="#c2410c"/>
+                <text x="400" y="215" text-anchor="middle" font-size="12" fill="#1f2937">Sí (n = 21) · mediana 114</text>
+              </svg>
+              <div class="hint">Selector de indicador · tooltip con n, mediana y percentiles · opción de ver histograma.</div>
+            </div>
+            <div class="card">
+              <span class="n">4</span>
+              <h3>% con diabetes reportada según glucosa en ayunas</h3>
+              <svg viewBox="0 0 360 230" width="100%" height="230" role="img" aria-label="Barras de porcentaje de diabetes reportada por categoría de glucosa">
+                <g font-size="11" fill="#6b7280">
+                  <line x1="40" y1="190" x2="345" y2="190" stroke="#d1d5db"/>
+                  <text x="34" y="193" text-anchor="end">0%</text>
+                  <text x="34" y="113" text-anchor="end">6%</text>
+                  <text x="34" y="35" text-anchor="end">12%</text>
+                  <line x1="40" y1="110" x2="345" y2="110" stroke="#e5e7eb" stroke-dasharray="3 3"/>
+                  <line x1="40" y1="32" x2="345" y2="32" stroke="#e5e7eb" stroke-dasharray="3 3"/>
+                </g>
+                <rect x="70" y="184" width="60" height="6" fill="#c2410c"/>
+                <rect x="165" y="178" width="60" height="12" fill="#c2410c"/>
+                <rect x="260" y="54" width="60" height="136" fill="#c2410c"/>
+                <g font-size="12" fill="#1f2937" text-anchor="middle">
+                  <text x="100" y="178">0,4%</text><text x="195" y="172">0,9%</text><text x="290" y="48">10,4%</text>
+                  <text x="100" y="208">&lt;100</text><text x="195" y="208">100–125</text><text x="290" y="208">≥126</text>
+                </g>
+                <g font-size="11" fill="#6b7280" text-anchor="middle">
+                  <text x="100" y="222">n = 1.367</text><text x="195" y="222">n = 776</text><text x="290" y="222">n = 77</text>
+                </g>
+              </svg>
+              <div class="seg"><span class="on">Glucosa</span><span>Edad</span><span>Sexo</span><span>Actividad</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <span class="n">5</span>
+            <h3>Resumen comparativo del segmento</h3>
+            <table class="t">
+              <tr><th>Indicador</th><th>Mediana · No</th><th>Mediana · Sí</th><th>Media · No</th><th>Media · Sí</th></tr>
+              <tr><td>Edad (años)</td><td>40,0</td><td class="pos-t">60,0</td><td>41,3</td><td class="pos-t">60,0</td></tr>
+              <tr><td>IMC (kg/m²)</td><td>26,7</td><td class="pos-t">29,1</td><td>27,8</td><td class="pos-t">31,1</td></tr>
+              <tr><td>Glucosa en ayunas (mg/dL)</td><td>97,0</td><td class="pos-t">114,0</td><td>98,6</td><td class="pos-t">148,9</td></tr>
+              <tr><td>Glucosa OGTT 2 h (mg/dL)</td><td>104,0</td><td class="pos-t">219,0</td><td>112,6</td><td class="pos-t">234,2</td></tr>
+              <tr><td>Insulina (µU/mL)</td><td>8,96</td><td class="pos-t">9,58</td><td>11,7</td><td class="pos-t">15,0</td></tr>
+            </table>
+            <div class="hint" style="margin-top:6px">Botón «Descargar CSV» del segmento filtrado.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="notes">
+      <tr><th>#</th><th>Elemento</th><th>Qué hace</th><th>Relación con la pregunta de negocio</th></tr>
+      <tr><td><span class="dot">1</span></td><td>Filtros de segmento</td><td>Rango de edad, sexo registrado y actividad vigorosa (<code>PAQ605</code>); deja explícita la recodificación de <code>DIQ010</code>.</td><td>P2: segmentar por características demográficas y actividad física.</td></tr>
+      <tr><td><span class="dot">2</span></td><td>Indicadores clave</td><td>Tamaño del segmento, casos «Sí» y medianas de edad e IMC por grupo.</td><td>Contexto inmediato del segmento y del desbalance de clases (0,95%).</td></tr>
+      <tr><td><span class="dot">3</span></td><td>Distribución por indicador</td><td>Diagrama de caja o histograma de IMC, glucosa, OGTT e insulina por grupo.</td><td>P1: cómo se distribuyen los indicadores metabólicos entre grupos.</td></tr>
+      <tr><td><span class="dot">4</span></td><td>Tasa por categoría</td><td>% con diabetes reportada por categoría de glucosa, edad, sexo o actividad.</td><td>P1 y P2: identificar en qué patrones se concentra el antecedente reportado.</td></tr>
+      <tr><td><span class="dot">5</span></td><td>Tabla comparativa</td><td>Medianas y medias por grupo; exportable.</td><td>P1 y P4: comparación reproducible sin ejecutar código.</td></tr>
+      <tr><td><span class="dot">6</span></td><td>Aviso de tamaño muestral</td><td>Aparece cuando el grupo «Sí» del segmento es pequeño.</td><td>P4: presentar resultados sin sobreinterpretar.</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ PANTALLA 2 ============ -->
+  <section class="screen" id="s-p2">
+    <h2>Pantalla 2: Simulador de clasificación (Módulo B)</h2>
+    <p class="sub">Responde a P3 (capacidad del clasificador) y P4 (inferencia reproducible). El tablero llama a <code>POST /predict</code>; no carga el modelo.</p>
+    <div class="frame">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">localhost:8501 · Tablero (Streamlit)</span></div>
+      <div class="appbar">
+        <div class="brand">Metabolic Health Explorer <small>NHANES 2013–2014 · UCI 887</small></div>
+        <div class="tabs"><span class="tab">Exploración</span><span class="tab on">Simulador</span><span class="tab">Acerca del modelo</span></div>
+      </div>
+      <div class="layout">
+        <aside class="side rel">
+          <span class="n">1</span>
+          <div class="lbl">Perfil a consultar</div>
+          <div class="lbl">Edad (12–80)</div><div class="input">55</div>
+          <div class="lbl">Sexo registrado</div><div class="input sel">Mujer</div>
+          <div class="lbl">Actividad vigorosa</div><div class="input sel">No</div>
+          <div class="lbl">IMC (kg/m²)</div><div class="input">31,2</div>
+          <div class="lbl">Glucosa en ayunas (mg/dL)</div><div class="input">118</div>
+          <div class="lbl">Glucosa OGTT 2 h (mg/dL)</div><div class="input">190</div>
+          <div class="lbl">Insulina (µU/mL)</div><div class="input">12,4</div>
+          <div class="rel" style="margin-top:18px"><span class="n" style="top:-8px;left:-8px">2</span><div class="btn" style="display:block">Consultar modelo</div></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Valida tipos y rangos antes de enviar. Si un valor está fuera de rango, muestra el mensaje de error 422 de la API.</div>
+        </aside>
+        <div class="main">
+          <div class="row r2">
+            <div class="card">
+              <span class="n">3</span>
+              <h3>Resultado del modelo</h3>
+              <div style="font-size:12px;color:var(--muted)">Clasificación del antecedente reportado</div>
+              <div style="font-size:22px;font-weight:700;color:var(--pos);margin:4px 0 12px">Perfil similar a «Sí reporta diabetes»</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>Probabilidad estimada</span><span><b style="color:var(--ink)">0,42</b> · umbral 0,30</span></div>
+              <div class="prob" style="margin-top:4px"><div style="width:42%"></div><span class="thr" style="left:30%"></span></div>
+              <div class="hint" style="margin-top:10px">Valores ilustrativos. El umbral se fijará en la evaluación por el desbalance de clases y se priorizará el recall.</div>
+              <div class="hint">Modelo: regresión logística v0.2.0 · <span class="status">API activa (GET /health)</span></div>
+            </div>
+            <div class="card">
+              <span class="n">4</span>
+              <h3>¿Dónde está este perfil frente a los datos?</h3>
+              <div class="pct"><div class="top"><span>Glucosa en ayunas · 118</span><span>percentil 92</span></div><div class="bar"><span class="mk" style="left:92%"></span></div></div>
+              <div class="pct"><div class="top"><span>Glucosa OGTT · 190</span><span>percentil 95</span></div><div class="bar"><span class="mk" style="left:95%"></span></div></div>
+              <div class="pct"><div class="top"><span>IMC · 31,2</span><span>percentil 72</span></div><div class="bar"><span class="mk" style="left:72%"></span></div></div>
+              <div class="pct"><div class="top"><span>Edad · 55</span><span>percentil 70</span></div><div class="bar"><span class="mk" style="left:70%"></span></div></div>
+              <div class="hint">Percentiles calculados sobre los 2.220 registros válidos (ilustrativos).</div>
+            </div>
+          </div>
+          <div class="row r2">
+            <div class="card">
+              <span class="n">5</span>
+              <h3>Detalle técnico de la llamada</h3>
+              <div class="code">POST /predict
+{ "RIDAGEYR": 55, "RIAGENDR": 2, "PAQ605": 2,
+  "BMXBMI": 31.2, "LBXGLU": 118,
+  "LBXGLT": 190, "LBXIN": 12.4 }
+
+200 OK
+{ "clase": 1, "probabilidad": 0.42,
+  "umbral": 0.30, "version_modelo": "0.2.0" }</div>
+            </div>
+            <div class="card">
+              <span class="n">6</span>
+              <h3>Historial de consultas de la sesión</h3>
+              <table class="t">
+                <tr><th>#</th><th>Edad</th><th>Glucosa</th><th>IMC</th><th>Prob.</th></tr>
+                <tr><td>3</td><td>55</td><td>118</td><td>31,2</td><td class="pos-t">0,42</td></tr>
+                <tr><td>2</td><td>55</td><td>98</td><td>31,2</td><td>0,11</td></tr>
+                <tr><td>1</td><td>35</td><td>92</td><td>24,0</td><td>0,02</td></tr>
+              </table>
+              <div class="hint" style="margin-top:6px">Sirve para ver cómo cambia la salida al variar una sola variable.</div>
+            </div>
+          </div>
+          <div class="warn"><b>Uso académico y exploratorio.</b> El resultado describe la similitud con las respuestas de la encuesta. No es un diagnóstico, un tamizaje ni una predicción de enfermedad futura.</div>
+        </div>
+      </div>
+    </div>
+    <table class="notes">
+      <tr><th>#</th><th>Elemento</th><th>Qué hace</th><th>Relación con la pregunta de negocio</th></tr>
+      <tr><td><span class="dot">1</span></td><td>Formulario de entrada</td><td>Campos de las 7 variables candidatas, con rangos y categorías válidas.</td><td>P3: usar las variables disponibles para distinguir la respuesta de <code>DIQ010</code>.</td></tr>
+      <tr><td><span class="dot">2</span></td><td>Botón de consulta</td><td>Envía el JSON a <code>POST /predict</code> y muestra los errores de validación.</td><td>Cumple el criterio de éxito 4: el tablero consume el modelo solo a través de la API.</td></tr>
+      <tr><td><span class="dot">3</span></td><td>Resultado</td><td>Clase, probabilidad, umbral, versión del modelo y estado de <code>GET /health</code>.</td><td>P3: clasificación supervisada del antecedente reportado.</td></tr>
+      <tr><td><span class="dot">4</span></td><td>Ubicación del perfil</td><td>Percentil de cada valor ingresado frente al conjunto de datos.</td><td>Integra lo descriptivo (P1) con lo predictivo (P3) en una sola vista.</td></tr>
+      <tr><td><span class="dot">5</span></td><td>Detalle técnico</td><td>Petición y respuesta JSON (sección desplegable).</td><td>P4 y usuario docente o técnico: demostrar el sistema integrado.</td></tr>
+      <tr><td><span class="dot">6</span></td><td>Historial</td><td>Consultas de la sesión para comparar escenarios.</td><td>P3: explorar qué variables mueven la clasificación.</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ PANTALLA 3 ============ -->
+  <section class="screen" id="s-p3">
+    <h2>Pantalla 3: Acerca del modelo y de los datos (Módulo C)</h2>
+    <p class="sub">Transparencia: origen de los datos, métricas reales de evaluación y limitaciones (P4 y criterio de éxito 6).</p>
+    <div class="frame">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">localhost:8501 · Tablero (Streamlit)</span></div>
+      <div class="appbar">
+        <div class="brand">Metabolic Health Explorer <small>NHANES 2013–2014 · UCI 887</small></div>
+        <div class="tabs"><span class="tab">Exploración</span><span class="tab">Simulador</span><span class="tab on">Acerca del modelo</span></div>
+      </div>
+      <div class="main" style="padding:22px">
+        <div class="row r2">
+          <div class="card">
+            <span class="n">1</span>
+            <h3>Ficha de datos</h3>
+            <table class="t">
+              <tr><td>Fuente</td><td>UCI ML Repository, dataset 887</td></tr>
+              <tr><td>Ciclo</td><td>NHANES 2013–2014 (subconjunto)</td></tr>
+              <tr><td>Registros con DIQ010 = 1 o 2</td><td>2.220 (No 2.199 · Sí 21)</td></tr>
+              <tr><td>Etiqueta</td><td><code>DIQ010</code>: 1 = Sí, 2 = No</td></tr>
+              <tr><td>Excluidos</td><td>3, 7, 9 y faltantes</td></tr>
+              <tr><td>Versión de datos</td><td>Hash DVC <code>md5: …</code></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <span class="n">2</span>
+            <h3>Desempeño en el conjunto de prueba</h3>
+            <table class="t">
+              <tr><th>Métrica</th><th>Base (clase mayoritaria)</th><th>Regresión logística</th></tr>
+              <tr><td>Recall (Sí)</td><td>0,00</td><td>por calcular</td></tr>
+              <tr><td>Precisión (Sí)</td><td>n/a</td><td>por calcular</td></tr>
+              <tr><td>F1 (Sí)</td><td>0,00</td><td>por calcular</td></tr>
+              <tr><td>ROC-AUC</td><td>0,50</td><td>por calcular</td></tr>
+              <tr><td>Exactitud</td><td>≈ 0,99</td><td>por calcular</td></tr>
+            </table>
+            <div class="hint" style="margin-top:6px">La exactitud se muestra para advertir que, con un 0,95% de positivos, un modelo que nunca predice «Sí» alcanza ≈ 99%.</div>
+          </div>
+        </div>
+        <div class="row r2">
+          <div class="card">
+            <span class="n">3</span>
+            <h3>Matriz de confusión y peso de variables</h3>
+            <div class="row r2">
+              <div class="placeholder">Matriz de confusión 2×2<br>(conjunto de prueba)</div>
+              <div class="placeholder">Coeficientes estandarizados<br>de la regresión logística</div>
+            </div>
+          </div>
+          <div class="card">
+            <span class="n">4</span>
+            <h3>Limitaciones</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13px">
+              <li>Solo 21 casos positivos: métricas con alta variabilidad.</li>
+              <li>«No reporta» no equivale a «no tiene diabetes».</li>
+              <li>Sin ponderaciones muestrales: los resultados no representan a la población de EE. UU.</li>
+              <li>Glucosa y OGTT pueden reflejar el tratamiento posterior al diagnóstico (posible causalidad inversa).</li>
+              <li>No sirve para el uso clínico ni para la toma de decisiones sobre pacientes.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="notes">
+      <tr><th>#</th><th>Elemento</th><th>Qué hace</th><th>Relación con la pregunta de negocio</th></tr>
+      <tr><td><span class="dot">1</span></td><td>Ficha de datos</td><td>Origen, ciclo, filtrado de <code>DIQ010</code> y versión DVC.</td><td>Reproducibilidad (criterio de éxito 1) y comprensión del dato (P4).</td></tr>
+      <tr><td><span class="dot">2</span></td><td>Métricas frente al modelo base</td><td>Recall, precisión, F1 y ROC-AUC del modelo frente al clasificador base.</td><td>P3: cuánta capacidad real tienen las variables para distinguir la respuesta.</td></tr>
+      <tr><td><span class="dot">3</span></td><td>Matriz de confusión y coeficientes</td><td>Errores por clase y peso de cada variable.</td><td>P3 y P1: qué indicadores se asocian más con el antecedente.</td></tr>
+      <tr><td><span class="dot">4</span></td><td>Limitaciones</td><td>Alcance y advertencias de interpretación.</td><td>Sección 2.8 «Fuera de alcance» y criterio de éxito 6.</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ ARQUITECTURA ============ -->
+  <section class="screen" id="s-arq">
+    <h2>Arquitectura del prototipo</h2>
+    <p class="sub">Cómo se conectan los elementos de la maqueta con los componentes técnicos que se van a desplegar.</p>
+    <div class="frame" style="padding:28px 24px;background:var(--bg)">
+      <div class="arch">
+        <div class="box" style="align-self:center"><h4>Usuario</h4><p>Estudiante, investigador, analista o docente. Usa el navegador.</p></div>
+        <div class="arrow">HTTP</div>
+        <div class="docker"><span>Docker Compose</span>
+          <div class="box"><h4>Tablero</h4><p>Streamlit (propuesto)<br>Pantallas 1, 2 y 3<br>Lee agregados descriptivos</p></div>
+          <div class="arrow">POST /predict<br>GET /health</div>
+          <div class="box"><h4>API de inferencia</h4><p>FastAPI (propuesto)<br>Validación de entrada (Pydantic)<br>Documentación /docs</p></div>
+          <div class="arrow">carga</div>
+          <div class="box"><h4>Modelo empaquetado</h4><p>Pipeline de scikit-learn<br>(preprocesamiento + regresión logística)<br>model.joblib</p></div>
+        </div>
+      </div>
+      <div class="arch" style="margin-top:22px;justify-content:flex-end">
+        <div class="box"><h4>Datos versionados</h4><p>NHANES_age_prediction.csv<br>(data/raw) rastreado con DVC</p></div>
+        <div class="arrow">entrena</div>
+        <div class="box"><h4>Entrenamiento</h4><p>Notebook o script de Python<br>Métricas → pantalla 3</p></div>
+        <div class="arrow">genera</div>
+        <div class="box" style="border-style:dashed"><h4>Artefacto</h4><p>model.joblib + metrics.json<br>(consumidos por la API y el tablero)</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+  // Modo captura: maqueta_prototipo.html#p1 muestra solo esa pantalla
+  var h = location.hash.replace('#', '');
+  if (h) {
+    var el = document.getElementById('s-' + h);
+    if (el) { document.body.classList.add('shot'); el.classList.add('only'); }
+  }
+</script>
+</body>
+</html>
+

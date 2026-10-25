@@ -4,7 +4,7 @@
 **Materia:** Despliegue de Soluciones Analíticas  
 **Repositorio:** [MIAD-DSA-Metabolic-Health-Explorer](https://github.com/Alixguti9620/MIAD-DSA-Metabolic-Health-Explorer)
 
-> **Estado: versión documental 0.1.0.** Se cuenta con definición inicial del problema y del alcance, un notebook de exploración, resultados descriptivos y seguimiento local de datos con DVC. El modelo supervisado, la API REST, el tablero y Docker son **componentes futuros**, no funcionalidades implementadas.
+> **Estado: versión documental 0.1.0.** Se cuenta con definición inicial del problema y del alcance, un notebook de exploración, resultados descriptivos, maquetas del prototipo y seguimiento local de datos con DVC. El modelo supervisado, la API REST, el tablero y Docker son **componentes futuros**, no funcionalidades implementadas.
 
 ## 1. Contexto y propósito
 
@@ -29,12 +29,14 @@ Documentación de la Entrega 1:
 
 - [01 — Problema y contexto](docs/01_problema_y_contexto.md)
 - [02 — Pregunta de negocio y alcance](docs/02_pregunta_de_negocio_y_alcance.md)
+- [03 — Exploración inicial (notebook)](scripts/03_exploracion_inicial_nhanes.ipynb)
+- [04 — Maqueta del prototipo](docs/04_maqueta_prototipo.md)
 
 ## 2. Datos y variable objetivo
 
 - **Fuente:** [UCI Machine Learning Repository, dataset 887](https://archive.ics.uci.edu/dataset/887/national+health+and+nutrition+health+survey+2013-2014+(nhanes)+age+prediction+subset).
 - **Ciclo original:** NHANES 2013–2014.
-- **Tamaño de referencia:** 6.287 registros (por confirmar)
+- **Tamaño:** la ficha de UCI declara 6.287 instancias, pero el archivo publicado contiene **2.278 registros** (versionado con DVC). Ver la nota sobre el tamaño del dataset más abajo.
 - **Objetivo de origen:** `age_group`.
 - **Objetivo propuesto del equipo:** `DIQ010`, recodificado para clasificar **diabetes reportada**.
 
@@ -52,6 +54,18 @@ Documentación de la Entrega 1:
 | `DIQ010` | Diagnóstico de diabetes previamente reportado |
 
 La codificación a verificar para `DIQ010` incluye 1 = sí, 2 = no, 3 = borderline/prediabetes y códigos de respuesta especial. **El notebook explora las respuestas y restringe ciertas comparaciones a 1 y 2.** No afirmar que «no reportada» significa clínicamente «no tiene diabetes».
+
+**Nota sobre el tamaño del dataset**
+
+| Etapa | Registros | Detalle |
+|---|---|---|
+| Ficha de UCI («# Instances») | 6.287 | Cifra declarada en la página del dataset 887 |
+| Archivo publicado y cargado en el EDA | 2.278 | 10 columnas, sin valores nulos |
+| Respuestas de `DIQ010` | 2.278 | 21 Sí (1) · 2.199 No (2) · 58 prediabetes/borderline (3); no aparecen los códigos 7 ni 9 |
+| Comparaciones Sí/No del EDA y la maqueta | 2.220 | Se excluyen los 58 registros con `DIQ010 = 3` (0,95% de positivos) |
+| Tabla de actividad vigorosa | 2.219 | Se excluye además 1 registro con `PAQ605 = 7` |
+
+La diferencia entre 6.287 y 2.278 no proviene del procesamiento del equipo: el archivo descargado de UCI ya tiene 2.278 filas, y la ficha no describe cómo se seleccionaron los registros del subconjunto. El notebook lo advierte al cargar los datos. Todas las cifras del proyecto se calculan sobre el archivo real.
 
 Los resultados proceden de este **subconjunto**, no representan por sí solos estimaciones nacionales ponderadas de Estados Unidos.
 
@@ -72,7 +86,14 @@ MIAD-DSA-Metabolic-Health-Explorer/
 ├── docs/
 │   ├── 01_problema_y_contexto.md
 │   ├── 02_pregunta_de_negocio_y_alcance.md
-│   └── 05_estructura_y_trabajo_en_equipo.md
+│   ├── 04_maqueta_prototipo.md
+│   ├── 05_estructura_y_trabajo_en_equipo.md
+│   └── mockup/
+│       ├── maqueta_prototipo.html       # Opción A: tablero por pestañas
+│       ├── img/                         # Capturas de la opción A y de la arquitectura
+│       └── opcion_b/
+│           ├── maqueta_opcion_b.html    # Opción B: tablero centrado en el perfil
+│           └── img/                     # Capturas de la opción B
 ├── scripts/
 │   └── 03_exploracion_inicial_nhanes.ipynb
 ├── reports/
@@ -156,6 +177,7 @@ El desarrollo se hará mediante ramas, commits individuales y Pull Requests revi
 |---|---|
 | Contexto, problema y pregunta de negocio | Documentados inicialmente |
 | Dataset y exploración inicial | Notebook y salidas disponibles; ampliación pendiente |
+| Maqueta del prototipo | Dos opciones documentadas (A y B) |
 | DVC | Seguimiento local incluido; remoto por configurar |
 | Modelo supervisado (regresión logística o árbol pequeño) | Pendiente |
 | API con FastAPI | Pendiente |
