@@ -6,11 +6,15 @@
 
 ## 1.1 Contexto general
 
-La diabetes constituye un tema relevante para la salud pública debido a la necesidad de conocer cómo se distribuyen sus antecedentes y los indicadores de salud relacionados en diferentes grupos de población. Para estudiar estos patrones, las encuestas poblacionales permiten combinar respuestas proporcionadas por las personas con mediciones físicas y resultados de laboratorio.
+National Health and Nutrition Examination Survey (NHANES) es la encuesta de salud y nutrición nacional de Estados Unidos, regulada por el Centro de control y prevención de enfermedades (CDC). 
 
-En Estados Unidos, la *National Health and Nutrition Examination Survey* (NHANES), coordinada por el National Center for Health Statistics de los Centers for Disease Control and Prevention (CDC), recopila información por medio de entrevistas, exámenes físicos y pruebas de laboratorio. La edición 2013–2014 es una fuente pública de información histórica sobre salud y nutrición de la población civil no institucionalizada de Estados Unidos [1].
+A través de esta encuesta se busca recolectar datos que establezcan una base, proporcionen inferencias y ayuden a detallar estadísticamente los factores de riesgo de desarrollo de diversas enfermedades en la población Estadounidense; especialmente sobre la población vulnerable o que, independientemente de la razón, no hace parte del sistema institucional de protección pública. 
 
-El proyecto utilizará el conjunto **NHANES 2013–2014 Age Prediction Subset**, publicado en UCI Machine Learning Repository. Este subconjunto contiene 6.287 registros con variables demográficas, de actividad física y mediciones metabólicas [2]. Su objetivo original es distinguir dos grupos de edad; para este proyecto se propone una **nueva tarea académica**, centrada en diferenciar participantes según su respuesta a la pregunta de diagnóstico de diabetes reportado (`DIQ010`), sujeta a revisión de los códigos y la distribución de clases.
+De esta forma se logra monitorear el estado de salud y nutricional de la población, incluyendo factores de exposición ambiental, crecimiento y desarrollo, nutrición y enfermedades crónicas. (NCHS, 2024)
+
+El alcance del NHANES incluye diversas enfermedades crónicas y condiciones, sin embargo, para este proyecto buscamos acotar la información al hacer uso del subconjunto NHANES 2013–2014 Age Prediction Subset publicado en UCI, el cual usaremos para estudiar diferencias entre indicadores metabólicos asociados con la diabetes previamente reportada. 
+
+A diferencia del uso original de UCI para predecir un grupo de edad, nuestro objetivo propuesto es la respuesta a la pregunta de diabetes reportada (DIQ010).
 
 ## 1.2 Problema específico
 
