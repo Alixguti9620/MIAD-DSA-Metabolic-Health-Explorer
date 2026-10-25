@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maqueta opción B</title>
+<style>
+  :root {
+    --bg: #eef2f5;
+    --paper: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #dbe2ea;
+    --soft: #f1f5f9;
+    --nav: #0f2a3d;
+    --accent: #0d9488;
+    --accent-soft: #ccfbf1;
+    --no: #64748b;
+    --no-soft: #e2e8f0;
+    --pos: #ea580c;
+    --pos-soft: #ffedd5;
+    --note: #7c3aed;
+    --warn-bg: #fef9c3;
+    --warn-ink: #854d0e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 28px; max-width: 840px; }
+  section.screen { margin-bottom: 56px; }
+  section.screen > h2 { font-size: 18px; margin: 0 0 4px; }
+  section.screen > p.sub { color: var(--muted); margin: 0 0 14px; }
+
+  .frame { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+           box-shadow: 0 4px 16px rgba(15,23,42,.08); width: 1200px; max-width: 100%; }
+  .nav { background: var(--nav); color: #e2e8f0; display: flex; align-items: center; gap: 28px; padding: 14px 22px; }
+  .nav .brand { font-weight: 700; font-size: 16px; color: #fff; }
+  .nav .brand small { display: block; font-weight: 400; font-size: 11px; color: #94a3b8; }
+  .nav .links { display: flex; gap: 6px; margin-left: 20px; }
+  .nav .links span { padding: 6px 12px; border-radius: 6px; color: #cbd5e1; }
+  .nav .links span.on { background: rgba(255,255,255,.12); color: #fff; font-weight: 600; }
+  .nav .right { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 12px; color: #94a3b8; }
+  .pill-ok { display: inline-flex; align-items: center; gap: 6px; background: rgba(13,148,136,.2); color: #5eead4; padding: 3px 10px; border-radius: 999px; }
+  .pill-ok::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #2dd4bf; }
+
+  .body { padding: 20px 22px; display: grid; gap: 16px; }
+  .grid-main { display: grid; grid-template-columns: 330px 1fr; gap: 16px; align-items: start; }
+  .card { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .card h3 { margin: 0 0 10px; font-size: 14px; }
+  .hint { color: var(--muted); font-size: 12px; }
+
+  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; font-weight: 600; }
+  .field .in { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--paper); }
+  .field .in.sel::after { content: " ▾"; float: right; color: var(--muted); }
+  .seg2 { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .seg2 span { flex: 1; text-align: center; padding: 5px 0; font-size: 13px; }
+  .seg2 span.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .btn { display: block; text-align: center; background: var(--accent); color: #fff; font-weight: 600; border-radius: 8px; padding: 9px; margin-top: 14px; }
+
+  .result { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .gauge { display: flex; align-items: center; gap: 14px; }
+  .gauge .big { font-size: 34px; font-weight: 700; color: var(--pos); line-height: 1; }
+  .gauge .lbl { font-size: 13px; }
+  .scale { height: 10px; border-radius: 5px; margin: 12px 0 4px; position: relative;
+           background: linear-gradient(90deg, #e2e8f0 0%, #fed7aa 50%, #ea580c 100%); }
+  .scale .mk { position: absolute; top: -6px; width: 3px; height: 22px; background: var(--ink); border-radius: 2px; }
+  .scale .thr { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--accent); }
+  .scale-l { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+  .mult { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .mult .card { padding: 12px 14px; }
+  .mult h4 { margin: 0; font-size: 13px; display: flex; justify-content: space-between; }
+  .mult h4 span { font-weight: 400; color: var(--muted); }
+  .key { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+  .key b { display: inline-block; width: 12px; height: 8px; border-radius: 2px; margin-right: 5px; }
+
+  .bars3 { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 16px; }
+  .hbar { display: grid; grid-template-columns: 92px 1fr 52px; align-items: center; gap: 8px; margin: 7px 0; font-size: 12px; }
+  .hbar .tr { height: 14px; background: var(--soft); border-radius: 3px; position: relative; }
+  .hbar .tr > div { position: absolute; inset: 0 auto 0 0; background: var(--pos); border-radius: 3px; opacity: .55; }
+  .hbar.me .tr > div { opacity: 1; }
+  .hbar.me .nm { font-weight: 700; }
+  .hbar.me .nm::after { content: " ◀ perfil"; color: var(--accent); font-weight: 600; font-size: 11px; }
+  .hbar .vv { text-align: right; color: var(--muted); }
+
+  .strip { display: flex; gap: 16px; align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; position: relative; font-size: 12px; }
+  .strip .m { border-left: 1px solid var(--line); padding-left: 16px; }
+  .strip .m b { display: block; font-size: 15px; }
+  .strip .m:first-child { border-left: 0; padding-left: 0; }
+  .warn { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-left: auto; max-width: 420px; }
+
+  .n { position: absolute; top: -10px; left: -10px; width: 24px; height: 24px; border-radius: 50%; background: var(--note); color: #fff;
+       font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--bg); z-index: 2; }
+
+  /* Comparador */
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .segdef { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 12px; background: var(--paper); }
+  .chip.a { border-color: #0d9488; background: var(--accent-soft); color: #115e59; }
+  .chip.b { border-color: #7c3aed; background: #ede9fe; color: #5b21b6; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 1px 7px; margin-right: 6px; color: #fff; }
+  .tag.a { background: #0d9488; } .tag.b { background: #7c3aed; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.t th, table.t td { border-bottom: 1px solid var(--soft); padding: 7px 8px; text-align: right; }
+  table.t th:first-child, table.t td:first-child { text-align: left; }
+  table.t th { color: var(--muted); font-weight: 600; }
+  .dual { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: center; margin: 8px 0; font-size: 12px; }
+  .dual .bb { display: grid; gap: 3px; }
+  .dual .bb div { height: 10px; border-radius: 3px; }
+  /* Modelo y datos */
+  .kpis { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .kp b { display: block; font-size: 18px; margin: 2px 0; }
+  .kp.warnk { background: var(--warn-bg); border-color: #fde68a; }
+  .slider { position: relative; height: 18px; margin: 6px 0 10px; }
+  .slider .tr2 { position: absolute; top: 7px; left: 0; right: 0; height: 4px; border-radius: 2px; background: var(--line); }
+  .slider .kn { position: absolute; top: 1px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); border: 2px solid var(--accent); margin-left: -8px; }
+  .th-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; align-items: center; }
+  table.cm { border-collapse: collapse; font-size: 12px; width: 100%; }
+  table.cm th, table.cm td { border: 1px solid var(--line); padding: 8px 6px; text-align: center; }
+  table.cm th { color: var(--muted); font-weight: 600; background: var(--soft); }
+  table.cm td.tp { background: var(--pos-soft); font-weight: 600; }
+  table.cm td.fn, table.cm td.fp { background: #fef2f2; }
+  .coef { display: grid; grid-template-columns: 104px 1fr; gap: 8px; align-items: center; margin: 7px 0; font-size: 12px; }
+  .coef .cb { position: relative; height: 12px; background: var(--soft); border-radius: 3px; }
+  .coef .cb::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 1px solid var(--muted); }
+  .coef .cb div { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+  .coef .cb .p { background: var(--pos); }
+  .coef .cb .m { background: var(--no); }
+  .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .flow { display: grid; gap: 6px; }
+  .flow div { border-left: 3px solid var(--accent); background: var(--soft); border-radius: 0 6px 6px 0; padding: 6px 10px; font-size: 13px; }
+  .flow div span { display: block; font-size: 12px; color: var(--muted); }
+  .flow div:last-child { border-left-color: var(--note); }
+  .placeholder { border: 2px dashed var(--line); border-radius: 8px; color: var(--muted); padding: 14px; text-align: center; font-size: 12px; }
+
+  table.notes { width: 1200px; max-width: 100%; border-collapse: collapse; margin-top: 14px; background: var(--paper);
+                border: 1px solid var(--line); font-size: 13px; }
+  table.notes th, table.notes td { padding: 8px 12px; border-bottom: 1px solid var(--soft); text-align: left; vertical-align: top; }
+  table.notes th { background: var(--soft); color: var(--muted); }
+  .dot { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: var(--note); color: #fff; font-weight: 700; font-size: 12px; align-items: center; justify-content: center; }
+
+  body.shot .page > h1, body.shot .page > .lead, body.shot table.notes,
+  body.shot section.screen > h2, body.shot section.screen > p.sub { display: none; }
+  body.shot section.screen { display: none; margin: 0; }
+  body.shot section.screen.only { display: block; }
+  body.shot .page { padding: 16px; max-width: none; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Metabolic Health Explorer: maqueta, opción B</h1>
+  <p class="lead">Variante que parte del perfil: el usuario describe un perfil y todo el tablero se lee respecto a él. La consulta a la API y la exploración descriptiva
+    conviven en una sola vista. Las tasas por categoría (glucosa, sexo y actividad) son cifras reales del EDA. Las curvas de distribución son esquemáticas
+    y la probabilidad del modelo es ilustrativa.</p>
+
+  <!-- ============ PANTALLA B1 ============ -->
+  <section class="screen" id="s-b1">
+    <h2>Pantalla B1: Vista integrada «Perfil frente a los datos»</h2>
+    <p class="sub">Une el Módulo A (descriptivo) y el Módulo B (predictivo) en una sola pantalla.</p>
+    <div class="frame">
+      <div class="nav">
+        <div class="brand">Metabolic Health Explorer<small>NHANES 2013–2014 · UCI 887</small></div>
+        <div class="links"><span class="on">Perfil y datos</span><span>Comparar segmentos</span><span>Modelo y datos</span></div>
+        <div class="right"><span class="pill-ok">API conectada</span><span>modelo v0.2.0</span></div>
+      </div>
+      <div class="body">
+        <div class="grid-main">
+          <!-- Perfil + resultado -->
+          <div class="card">
+            <span class="n">1</span>
+            <h3>1. Describe un perfil</h3>
+            <div class="form">
+              <div class="field"><label>Edad</label><div class="in">55</div></div>
+              <div class="field"><label>Sexo registrado</label><div class="seg2"><span>H</span><span class="on">M</span></div></div>
+              <div class="field"><label>IMC (kg/m²)</label><div class="in">31,2</div></div>
+              <div class="field"><label>Act. vigorosa</label><div class="seg2"><span>Sí</span><span class="on">No</span></div></div>
+              <div class="field"><label>Glucosa ayunas</label><div class="in">118</div></div>
+              <div class="field"><label>Glucosa OGTT 2 h</label><div class="in">190</div></div>
+              <div class="field"><label>Insulina (µU/mL)</label><div class="in">12,4</div></div>
+              <div class="field"><label>Perfil de ejemplo</label><div class="in sel">Cargar…</div></div>
+            </div>
+            <div class="btn">Consultar modelo →</div>
+            <div class="result" style="position:relative">
+              <span class="n" style="top:4px;left:-26px">2</span>
+              <div class="hint" style="margin-bottom:6px">Respuesta de <code>POST /predict</code></div>
+              <div class="gauge">
+                <div class="big">0,42</div>
+                <div class="lbl">probabilidad estimada de pertenecer al grupo que <b>reporta</b> diabetes</div>
+              </div>
+              <div class="scale"><span class="thr" style="left:30%"></span><span class="mk" style="left:42%"></span></div>
+              <div class="scale-l"><span>0</span><span>umbral 0,30</span><span>1</span></div>
+              <div class="hint" style="margin-top:8px">Clasificación: <b style="color:var(--pos)">similar al grupo «Sí»</b>. Valor ilustrativo.</div>
+            </div>
+          </div>
+
+          <!-- Small multiples -->
+          <div>
+            <div class="card" style="margin-bottom:16px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+              <span class="n">3</span>
+              <b style="font-size:14px">2. ¿Dónde está el perfil dentro de cada indicador?</b>
+              <div class="key"><span><b style="background:#94a3b8"></b>No reporta (n = 2.199)</span><span><b style="background:#ea580c"></b>Sí reporta (n = 21)</span><span><b style="background:#0d9488;width:3px"></b>Perfil</span></div>
+            </div>
+            <div class="mult">
+              <div class="card">
+                <h4>Glucosa en ayunas <span>mediana 97 / 114 · perfil 118</span></h4>
+                <svg viewBox="0 0 380 110" width="100%" height="110" aria-label="Distribución esquemática de glucosa en ayunas">
+                  <path d="M10,95 C60,95 80,15 120,15 C160,15 175,90 240,94 L370,95 Z" fill="#cbd5e1" opacity=".8"/>
+                  <path d="M10,95 C90,95 120,55 165,52 C215,49 250,70 300,85 C330,92 350,94 370,95 Z" fill="#ea580c" opacity=".35" stroke="#ea580c"/>
+                  <line x1="180" y1="5" x2="180" y2="98" stroke="#0d9488" stroke-width="3"/>
+                  <line x1="10" y1="96" x2="370" y2="96" stroke="#cbd5e1"/>
+                  <g font-size="10" fill="#64748b"><text x="10" y="108">60</text><text x="115" y="108">100</text><text x="225" y="108">140</text><text x="340" y="108">180+</text></g>
+                </svg>
+              </div>
+              <div class="card">
+                <h4>Glucosa OGTT 2 h <span>mediana 104 / 219 · perfil 190</span></h4>
+                <svg viewBox="0 0 380 110" width="100%" height="110" aria-label="Distribución esquemática de OGTT">
+                  <path d="M10,95 C40,95 60,12 100,12 C140,12 160,85 230,93 L370,95 Z" fill="#cbd5e1" opacity=".8"/>
+                  <path d="M10,95 C120,95 160,70 210,55 C250,45 280,50 320,75 C345,88 360,94 370,95 Z" fill="#ea580c" opacity=".35" stroke="#ea580c"/>
+                  <line x1="232" y1="5" x2="232" y2="98" stroke="#0d9488" stroke-width="3"/>
+                  <line x1="10" y1="96" x2="370" y2="96" stroke="#cbd5e1"/>
+                  <g font-size="10" fill="#64748b"><text x="10" y="108">40</text><text x="115" y="108">120</text><text x="225" y="108">200</text><text x="340" y="108">300+</text></g>
+                </svg>
+              </div>
+              <div class="card">
+                <h4>IMC (kg/m²) <span>mediana 26,7 / 29,1 · perfil 31,2</span></h4>
+                <svg viewBox="0 0 380 110" width="100%" height="110" aria-label="Distribución esquemática de IMC">
+                  <path d="M10,95 C60,95 90,18 140,18 C190,18 220,80 300,92 L370,95 Z" fill="#cbd5e1" opacity=".8"/>
+                  <path d="M10,95 C90,95 130,40 180,38 C230,36 260,75 320,90 L370,95 Z" fill="#ea580c" opacity=".35" stroke="#ea580c"/>
+                  <line x1="205" y1="5" x2="205" y2="98" stroke="#0d9488" stroke-width="3"/>
+                  <line x1="10" y1="96" x2="370" y2="96" stroke="#cbd5e1"/>
+                  <g font-size="10" fill="#64748b"><text x="10" y="108">15</text><text x="115" y="108">25</text><text x="225" y="108">35</text><text x="345" y="108">50+</text></g>
+                </svg>
+              </div>
+              <div class="card">
+                <h4>Insulina (µU/mL) <span>mediana 8,96 / 9,58 · perfil 12,4</span></h4>
+                <svg viewBox="0 0 380 110" width="100%" height="110" aria-label="Distribución esquemática de insulina">
+                  <path d="M10,95 C30,95 50,12 85,12 C125,12 150,80 240,93 L370,95 Z" fill="#cbd5e1" opacity=".8"/>
+                  <path d="M10,95 C35,95 55,30 95,28 C140,26 170,80 260,92 L370,95 Z" fill="#ea580c" opacity=".35" stroke="#ea580c"/>
+                  <line x1="128" y1="5" x2="128" y2="98" stroke="#0d9488" stroke-width="3"/>
+                  <line x1="10" y1="96" x2="370" y2="96" stroke="#cbd5e1"/>
+                  <g font-size="10" fill="#64748b"><text x="10" y="108">0</text><text x="115" y="108">15</text><text x="225" y="108">30</text><text x="345" y="108">60+</text></g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasas por categoría -->
+        <div class="card">
+          <span class="n">4</span>
+          <h3>3. % que reporta diabetes en el grupo al que pertenece el perfil</h3>
+          <div class="bars3">
+            <div>
+              <div class="hint" style="font-weight:600">Glucosa en ayunas (mg/dL)</div>
+              <div class="hbar"><span class="nm">&lt;100</span><div class="tr"><div style="width:4%"></div></div><span class="vv">0,4%</span></div>
+              <div class="hbar me"><span class="nm">100–125</span><div class="tr"><div style="width:9%"></div></div><span class="vv">0,9%</span></div>
+              <div class="hbar"><span class="nm">≥126</span><div class="tr"><div style="width:100%"></div></div><span class="vv">10,4%</span></div>
+            </div>
+            <div>
+              <div class="hint" style="font-weight:600">Sexo registrado</div>
+              <div class="hbar"><span class="nm">Hombre</span><div class="tr"><div style="width:7%"></div></div><span class="vv">0,7%</span></div>
+              <div class="hbar me"><span class="nm">Mujer</span><div class="tr"><div style="width:11%"></div></div><span class="vv">1,1%</span></div>
+            </div>
+            <div>
+              <div class="hint" style="font-weight:600">Actividad vigorosa</div>
+              <div class="hbar me"><span class="nm">No</span><div class="tr"><div style="width:8%"></div></div><span class="vv">0,8%</span></div>
+              <div class="hbar"><span class="nm">Sí</span><div class="tr"><div style="width:15%"></div></div><span class="vv">1,5%</span></div>
+            </div>
+          </div>
+          <div class="hint" style="margin-top:6px">Escala común (0–10,4%) para comparar entre paneles. Total: 21 de 2.220 (0,95%).</div>
+        </div>
+
+        <!-- Franja del modelo -->
+        <div class="strip">
+          <span class="n">5</span>
+          <div class="m">Modelo<b>Regresión logística</b></div>
+          <div class="m">Recall (Sí)<b>por calcular</b></div>
+          <div class="m">ROC-AUC<b>por calcular</b></div>
+          <div class="m">Base (clase mayoritaria)<b>recall 0 · exactitud ≈ 99%</b></div>
+          <div class="warn"><b>Uso académico.</b> Describe la similitud con las respuestas de la encuesta; no es un diagnóstico.</div>
+        </div>
+      </div>
+    </div>
+    <table class="notes">
+      <tr><th>#</th><th>Elemento</th><th>Qué hace</th><th>Relación con la pregunta de negocio</th></tr>
+      <tr><td><span class="dot">1</span></td><td>Formulario de perfil</td><td>Las 7 variables candidatas, con perfiles de ejemplo precargados.</td><td>P3: insumo del clasificador.</td></tr>
+      <tr><td><span class="dot">2</span></td><td>Resultado del modelo</td><td>Probabilidad en una escala continua con el umbral marcado; respuesta de <code>POST /predict</code>.</td><td>P3 y criterio de éxito 4 (el tablero usa el modelo solo vía API).</td></tr>
+      <tr><td><span class="dot">3</span></td><td>Distribuciones con el perfil marcado</td><td>Curvas No/Sí de cada indicador con una línea en el valor ingresado.</td><td>P1: cómo se distribuyen los indicadores; ubica el perfil en el contexto de los datos.</td></tr>
+      <tr><td><span class="dot">4</span></td><td>Tasas por categoría</td><td>% que reporta diabetes por glucosa, sexo y actividad, con el grupo del perfil resaltado.</td><td>P2: segmentación demográfica y de actividad.</td></tr>
+      <tr><td><span class="dot">5</span></td><td>Franja del modelo</td><td>Métricas clave frente al modelo base y aviso de uso.</td><td>P3 y P4: capacidad real del modelo y lectura responsable.</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ PANTALLA B2 ============ -->
+  <section class="screen" id="s-b2">
+    <h2>Pantalla B2: Comparar segmentos</h2>
+    <p class="sub">Responde a P2 de forma directa: el usuario define dos segmentos y los ve lado a lado.</p>
+    <div class="frame">
+      <div class="nav">
+        <div class="brand">Metabolic Health Explorer<small>NHANES 2013–2014 · UCI 887</small></div>
+        <div class="links"><span>Perfil y datos</span><span class="on">Comparar segmentos</span><span>Modelo y datos</span></div>
+        <div class="right"><span class="pill-ok">API conectada</span><span>modelo v0.2.0</span></div>
+      </div>
+      <div class="body">
+        <div class="cmp">
+          <div class="card">
+            <span class="n">1</span>
+            <h3><span class="tag a">A</span>Segmento A</h3>
+            <div class="segdef"><span class="chip a">Sexo: Mujer</span><span class="chip">Edad: 12–80</span><span class="chip">Actividad: todas</span><span class="chip">+ añadir filtro</span></div>
+          </div>
+          <div class="card">
+            <h3><span class="tag b">B</span>Segmento B</h3>
+            <div class="segdef"><span class="chip b">Sexo: Hombre</span><span class="chip">Edad: 12–80</span><span class="chip">Actividad: todas</span><span class="chip">+ añadir filtro</span></div>
+          </div>
+        </div>
+        <div class="cmp">
+          <div class="card">
+            <span class="n">2</span>
+            <h3>Resumen</h3>
+            <table class="t">
+              <tr><th></th><th><span class="tag a">A</span>Mujer</th><th><span class="tag b">B</span>Hombre</th><th>Diferencia</th></tr>
+              <tr><td>Registros</td><td>1.140</td><td>1.080</td><td>+60</td></tr>
+              <tr><td>Reportan diabetes</td><td>13</td><td>8</td><td>+5</td></tr>
+              <tr><td>% que reporta</td><td><b>1,14%</b></td><td><b>0,74%</b></td><td>+0,40 pp</td></tr>
+            </table>
+            <div class="hint" style="margin-top:8px;background:var(--warn-bg);color:var(--warn-ink);padding:6px 10px;border-radius:6px">Con 13 y 8 casos, la diferencia no permite conclusiones: la app muestra el intervalo de confianza de cada %.</div>
+          </div>
+          <div class="card">
+            <span class="n">3</span>
+            <h3>Mediana de cada indicador: <span class="tag a">A</span>frente a <span class="tag b">B</span></h3>
+            <div class="dual"><span>Glucosa ayunas</span><div class="bb"><div style="width:62%;background:#0d9488"></div><div style="width:70%;background:#7c3aed"></div></div></div>
+            <div class="dual"><span>Glucosa OGTT</span><div class="bb"><div style="width:80%;background:#0d9488"></div><div style="width:74%;background:#7c3aed"></div></div></div>
+            <div class="dual"><span>IMC</span><div class="bb"><div style="width:55%;background:#0d9488"></div><div style="width:50%;background:#7c3aed"></div></div></div>
+            <div class="dual"><span>Insulina</span><div class="bb"><div style="width:40%;background:#0d9488"></div><div style="width:44%;background:#7c3aed"></div></div></div>
+            <div class="hint">Esquema: barras ilustrativas; la app calcula los valores de cada segmento.</div>
+          </div>
+        </div>
+        <div class="cmp">
+          <div class="card">
+            <span class="n">4</span>
+            <h3>Probabilidad media estimada por el modelo en cada segmento</h3>
+            <div class="placeholder">Distribución de las probabilidades predichas (A frente a B), calculada en lote por la API.<br><code>POST /predict/batch</code> (opcional)</div>
+          </div>
+          <div class="card">
+            <span class="n">5</span>
+            <h3>Exportar</h3>
+            <div class="hint" style="margin-bottom:10px">Descarga la comparación (CSV) con los filtros aplicados, para usarla en informes.</div>
+            <div class="btn" style="margin-top:0;background:var(--paper);color:var(--accent);border:1px solid var(--accent)">Descargar comparación</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="notes">
+      <tr><th>#</th><th>Elemento</th><th>Qué hace</th><th>Relación con la pregunta de negocio</th></tr>
+      <tr><td><span class="dot">1</span></td><td>Definición de segmentos A y B</td><td>Filtros independientes de edad, sexo y actividad para cada segmento.</td><td>P2: segmentación.</td></tr>
+      <tr><td><span class="dot">2</span></td><td>Resumen comparativo</td><td>Registros, casos y % que reporta, con la diferencia y la advertencia de n pequeño (cifras reales por sexo).</td><td>P2 y P4.</td></tr>
+      <tr><td><span class="dot">3</span></td><td>Medianas por indicador</td><td>Barras pareadas A/B por indicador metabólico.</td><td>P1 dentro de cada segmento.</td></tr>
+      <tr><td><span class="dot">4</span></td><td>Predicción por segmento</td><td>Distribución de las probabilidades del modelo en cada segmento (vía API).</td><td>P3: el modelo aplicado a grupos y no solo a un perfil.</td></tr>
+      <tr><td><span class="dot">5</span></td><td>Exportar</td><td>Descarga de la comparación.</td><td>P4: reproducibilidad.</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ PANTALLA B3 ============ -->
+  <section class="screen" id="s-b3">
+    <h2>Pantalla B3: Modelo y datos (Módulo C)</h2>
+    <p class="sub">Transparencia: qué tan bien distingue el modelo, cómo cambia con el umbral, qué variables pesan y de dónde salen los datos.</p>
+    <div class="frame">
+      <div class="nav">
+        <div class="brand">Metabolic Health Explorer<small>NHANES 2013–2014 · UCI 887</small></div>
+        <div class="links"><span>Perfil y datos</span><span>Comparar segmentos</span><span class="on">Modelo y datos</span></div>
+        <div class="right"><span class="pill-ok">API conectada</span><span>modelo v0.2.0</span></div>
+      </div>
+      <div class="body">
+        <div class="kpis">
+          <span class="n">1</span>
+          <div class="card kp"><div class="hint">Recall (Sí)</div><b>por calcular</b><div class="hint">base: 0,00</div></div>
+          <div class="card kp"><div class="hint">Precisión (Sí)</div><b>por calcular</b><div class="hint">base: n/a</div></div>
+          <div class="card kp"><div class="hint">F1 (Sí)</div><b>por calcular</b><div class="hint">base: 0,00</div></div>
+          <div class="card kp"><div class="hint">ROC-AUC</div><b>por calcular</b><div class="hint">base: 0,50</div></div>
+          <div class="card kp warnk"><div class="hint">Exactitud</div><b>≈ 99% (base)</b><div class="hint">no se usa para elegir el modelo</div></div>
+        </div>
+
+        <div class="cmp">
+          <div class="card">
+            <span class="n">2</span>
+            <h3>Explorador de umbral</h3>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>Umbral de decisión</span><b style="color:var(--ink)">0,30</b></div>
+            <div class="slider"><div class="tr2"></div><div class="kn" style="left:30%"></div></div>
+            <div class="th-grid">
+              <svg viewBox="0 0 300 150" width="100%" height="150" aria-label="Curvas esquemáticas de recall y precisión según el umbral">
+                <line x1="30" y1="130" x2="290" y2="130" stroke="#cbd5e1"/>
+                <line x1="30" y1="10" x2="30" y2="130" stroke="#cbd5e1"/>
+                <path d="M30,18 C90,22 130,50 170,90 C210,120 250,127 290,128" fill="none" stroke="#ea580c" stroke-width="2.5"/>
+                <path d="M30,122 C80,115 120,95 170,70 C210,52 250,40 290,36" fill="none" stroke="#0d9488" stroke-width="2.5"/>
+                <line x1="108" y1="10" x2="108" y2="130" stroke="#0f172a" stroke-dasharray="4 3"/>
+                <g font-size="10" fill="#64748b"><text x="30" y="144">0</text><text x="282" y="144">1</text><text x="112" y="20">umbral</text></g>
+                <g font-size="11"><text x="200" y="118" fill="#ea580c">recall</text><text x="200" y="45" fill="#0d9488">precisión</text></g>
+              </svg>
+              <div>
+                <div class="hint" style="margin-bottom:6px;font-weight:600">Matriz de confusión (prueba)</div>
+                <table class="cm">
+                  <tr><td></td><th>Pred. No</th><th>Pred. Sí</th></tr>
+                  <tr><th>Real No</th><td>VN —</td><td class="fp">FP —</td></tr>
+                  <tr><th>Real Sí</th><td class="fn">FN —</td><td class="tp">VP —</td></tr>
+                </table>
+                <div class="hint" style="margin-top:6px">Se recalcula al mover el umbral.</div>
+              </div>
+            </div>
+            <div class="hint">Curvas esquemáticas. Muestra el costo de detectar más casos «Sí» (más falsos positivos).</div>
+          </div>
+          <div class="card">
+            <span class="n">3</span>
+            <h3>¿Qué variables pesan en el modelo?</h3>
+            <div class="coef"><span>Glucosa OGTT</span><div class="cb"><div style="left:50%;width:38%" class="p"></div></div></div>
+            <div class="coef"><span>Glucosa ayunas</span><div class="cb"><div style="left:50%;width:30%" class="p"></div></div></div>
+            <div class="coef"><span>Edad</span><div class="cb"><div style="left:50%;width:24%" class="p"></div></div></div>
+            <div class="coef"><span>IMC</span><div class="cb"><div style="left:50%;width:12%" class="p"></div></div></div>
+            <div class="coef"><span>Insulina</span><div class="cb"><div style="left:50%;width:6%" class="p"></div></div></div>
+            <div class="coef"><span>Sexo (mujer)</span><div class="cb"><div style="left:46%;width:4%" class="m"></div></div></div>
+            <div class="coef"><span>Act. vigorosa</span><div class="cb"><div style="left:45%;width:5%" class="m"></div></div></div>
+            <div class="scale-l" style="margin:4px 0 0 112px"><span>← reduce la probabilidad</span><span>aumenta →</span></div>
+            <div class="hint" style="margin-top:8px">Coeficientes estandarizados de la regresión logística. Orden y tamaño <b>ilustrativos</b>; se reemplazan al entrenar.</div>
+          </div>
+        </div>
+
+        <div class="cols3">
+          <div class="card">
+            <span class="n">4</span>
+            <h3>De dónde salen los datos</h3>
+            <div class="flow">
+              <div><b>Subconjunto UCI 887</b><span>NHANES 2013–2014</span></div>
+              <div><b>2.220 registros</b><span>DIQ010 = 1 o 2 (se excluyen 3, 7 y 9)</span></div>
+              <div><b>21 Sí · 2.199 No</b><span>0,95% de positivos</span></div>
+              <div><b>Validación cruzada estratificada</b><span>con 21 positivos, una partición 80/20 dejaría solo ≈ 4 en prueba</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <span class="n">5</span>
+            <h3>Trazabilidad</h3>
+            <table class="t">
+              <tr><td>Versión de datos</td><td><code>dvc md5 …</code></td></tr>
+              <tr><td>Versión del modelo</td><td>v0.2.0</td></tr>
+              <tr><td>Commit de entrenamiento</td><td><code>git …</code></td></tr>
+              <tr><td>Pipeline</td><td>escalado + regresión logística</td></tr>
+              <tr><td>API</td><td><code>/predict</code> · <code>/health</code> · <code>/docs</code></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <span class="n">6</span>
+            <h3>Limitaciones</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13px">
+              <li>Solo 21 positivos: las métricas varían mucho.</li>
+              <li>«No reporta» no equivale a «no tiene diabetes».</li>
+              <li>Sin ponderaciones muestrales: no representa a EE. UU.</li>
+              <li>La glucosa puede reflejar el tratamiento posterior al diagnóstico.</li>
+              <li>No sirve para uso clínico.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="notes">
+      <tr><th>#</th><th>Elemento</th><th>Qué hace</th><th>Relación con la pregunta de negocio</th></tr>
+      <tr><td><span class="dot">1</span></td><td>Métricas frente al modelo base</td><td>Recall, precisión, F1 y ROC-AUC del modelo y del clasificador de clase mayoritaria; la exactitud se muestra como advertencia.</td><td>P3: capacidad real de las variables para distinguir la respuesta.</td></tr>
+      <tr><td><span class="dot">2</span></td><td>Explorador de umbral</td><td>Mueve el umbral y ve cómo cambian recall, precisión y la matriz de confusión.</td><td>P3 y P4: hace comprensible la decisión del umbral con clases desbalanceadas.</td></tr>
+      <tr><td><span class="dot">3</span></td><td>Peso de las variables</td><td>Coeficientes estandarizados, con su signo.</td><td>P1 y P3: qué indicadores se asocian más con el antecedente reportado.</td></tr>
+      <tr><td><span class="dot">4</span></td><td>Origen y partición de los datos</td><td>Embudo desde el subconjunto hasta los datos de entrenamiento y evaluación.</td><td>Criterio de éxito 1 y riesgo de la sección 2.10 (pocos positivos).</td></tr>
+      <tr><td><span class="dot">5</span></td><td>Trazabilidad</td><td>Versiones de datos (DVC), modelo y código; endpoints de la API.</td><td>Criterios de éxito 1, 2 y 3.</td></tr>
+      <tr><td><span class="dot">6</span></td><td>Limitaciones</td><td>Advertencias de interpretación y uso.</td><td>Sección 2.8 y criterio de éxito 6.</td></tr>
+    </table>
+  </section>
+</div>
+<script>
+  var h = location.hash.replace('#', '');
+  if (h) {
+    var el = document.getElementById('s-' + h);
+    if (el) { document.body.classList.add('shot'); el.classList.add('only'); }
+  }
+</script>
+</body>
+</html>
