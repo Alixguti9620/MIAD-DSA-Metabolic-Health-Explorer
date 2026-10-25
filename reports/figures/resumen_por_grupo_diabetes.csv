@@ -1,0 +1,16 @@
+variable,grupo,n,Q1,mediana,Q3
+Edad,No,2199,23.0,40.0,57.0
+Edad,Borderline,58,43.2,60.0,67.0
+Edad,Sí,21,49.0,60.0,66.0
+IMC,No,2199,22.7,26.7,31.2
+IMC,Borderline,58,26.2,30.4,33.0
+IMC,Sí,21,26.9,29.1,32.4
+Glucosa en ayunas,No,2199,91.0,97.0,103.0
+Glucosa en ayunas,Borderline,58,101.2,112.0,121.0
+Glucosa en ayunas,Sí,21,99.0,114.0,158.0
+Glucosa tolerancia oral,No,2199,86.0,104.0,128.0
+Glucosa tolerancia oral,Borderline,58,110.0,146.5,196.5
+Glucosa tolerancia oral,Sí,21,145.0,219.0,288.0
+Insulina,No,2199,5.8,9.0,14.3
+Insulina,Borderline,58,8.4,13.3,21.3
+Insulina,Sí,21,6.9,9.6,13.6
