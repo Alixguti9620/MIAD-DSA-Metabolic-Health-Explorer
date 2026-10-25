@@ -8,7 +8,16 @@
 
 ## 1. Contexto y propósito
 
-NHANES es una encuesta de salud y nutrición de Estados Unidos. Este proyecto utiliza el subconjunto **NHANES 2013–2014 Age Prediction Subset** publicado en UCI para estudiar diferencias entre indicadores metabólicos asociados con la **diabetes previamente reportada**. A diferencia del uso original de UCI para predecir un grupo de edad, nuestro objetivo propuesto es la respuesta a la pregunta de diabetes reportada (`DIQ010`).
+National Health and Nutrition Examination Survey (NHANES) es la encuesta de salud y nutrición nacional de Estados Unidos, regulada por el Centro de control y prevención de enfermedades (CDC). 
+
+A través de esta encuesta se busca recolectar datos que establezcan una base, proporcionen inferencias y ayuden a detallar estadísticamente los factores de riesgo de desarrollo de diversas enfermedades en la población Estadounidense; especialmente sobre la población vulnerable o que, independientemente de la razón, no hace parte del sistema institucional de protección pública. 
+
+De esta forma se logra monitorear el estado de salud y nutricional de la población, incluyendo factores de exposición ambiental, crecimiento y desarrollo, nutrición y enfermedades crónicas. (NCHS, 2024)
+
+El alcance del NHANES incluye diversas enfermedades crónicas y condiciones, sin embargo, para este proyecto buscamos acotar la información al hacer uso del subconjunto NHANES 2013–2014 Age Prediction Subset publicado en UCI, el cual usaremos para estudiar diferencias entre indicadores metabólicos asociados con la diabetes previamente reportada. 
+
+A diferencia del uso original de UCI para predecir un grupo de edad, nuestro objetivo propuesto es la respuesta a la pregunta de diabetes reportada (DIQ010).
+
 
 **Pregunta de negocio**
 
@@ -25,7 +34,7 @@ Documentación de la Entrega 1:
 
 - **Fuente:** [UCI Machine Learning Repository, dataset 887](https://archive.ics.uci.edu/dataset/887/national+health+and+nutrition+health+survey+2013-2014+(nhanes)+age+prediction+subset).
 - **Ciclo original:** NHANES 2013–2014.
-- **Tamaño de referencia:** 6.287 registros.
+- **Tamaño de referencia:** 6.287 registros (por confirmar)
 - **Objetivo de origen:** `age_group`.
 - **Objetivo propuesto del equipo:** `DIQ010`, recodificado para clasificar **diabetes reportada**.
 
