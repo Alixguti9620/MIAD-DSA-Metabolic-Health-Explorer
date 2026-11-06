@@ -198,7 +198,3 @@ Versionado propuesto: `0.1.0` documentación inicial, `0.2.0` modelado, `0.3.0` 
 - [CDC — Documentación de DIQ_H (diabetes)](https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2013/DataFiles/DIQ_H.htm).
 - [UCI — NHANES Age Prediction Subset (ID 887)](https://archive.ics.uci.edu/dataset/887/national+health+and+nutrition+health+survey+2013-2014+(nhanes)+age+prediction+subset), conjunto usado en la Entrega 1. DOI: [10.24432/C5BS66](https://doi.org/10.24432/C5BS66).
 - Dinh, A. et al. (2019). *A data-driven approach to predicting diabetes and cardiovascular disease with machine learning*. *BMC Medical Informatics and Decision Making*. [DOI: 10.1186/s12911-019-0918-5](https://doi.org/10.1186/s12911-019-0918-5).
-
----
-
-*Uso académico y exploratorio. Las clasificaciones no constituyen diagnóstico, tamizaje clínico ni asesoramiento médico.*
