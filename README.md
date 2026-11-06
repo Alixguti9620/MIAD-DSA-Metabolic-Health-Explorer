@@ -6,6 +6,8 @@
 
 > **Estado: versión documental 0.1.0.** Se cuenta con definición inicial del problema y del alcance, un notebook de exploración, resultados descriptivos, maquetas del prototipo y seguimiento local de datos con DVC. El modelo supervisado, la API REST, el tablero y Docker son **componentes futuros**, no funcionalidades implementadas.
 
+
+
 ## 1. Contexto y propósito
 
 National Health and Nutrition Examination Survey (NHANES) es la encuesta de salud y nutrición nacional de Estados Unidos, regulada por el Centro de control y prevención de enfermedades (CDC). 
