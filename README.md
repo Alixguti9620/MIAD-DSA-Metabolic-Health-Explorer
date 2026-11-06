@@ -6,8 +6,6 @@
 
 > **Estado: versión documental 0.1.0.** Se cuenta con definición inicial del problema y del alcance, un notebook de exploración, resultados descriptivos, maquetas del prototipo y seguimiento local de datos con DVC. El modelo supervisado, la API REST, el tablero y Docker son **componentes futuros**, no funcionalidades implementadas.
 
-
-
 ## 1. Contexto y propósito
 
 National Health and Nutrition Examination Survey (NHANES) es la encuesta de salud y nutrición nacional de Estados Unidos, regulada por el Centro de control y prevención de enfermedades (CDC). 
@@ -193,7 +191,3 @@ Versionado propuesto: `0.1.0` documentación inicial, `0.2.0` modelo, `0.3.0` AP
 - [UCI — NHANES Age Prediction Subset (ID 887)](https://archive.ics.uci.edu/dataset/887/national+health+and+nutrition+health+survey+2013-2014+(nhanes)+age+prediction+subset). DOI: [10.24432/C5BS66](https://doi.org/10.24432/C5BS66).
 - [CDC — NHANES 2013–2014](https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013).
 - Dinh, A. et al. (2019). *A data-driven approach to predicting diabetes and cardiovascular disease with machine learning*. *BMC Medical Informatics and Decision Making*. [DOI: 10.1186/s12911-019-0918-5](https://doi.org/10.1186/s12911-019-0918-5).
-
----
-
-*Uso académico y exploratorio. Las clasificaciones no constituyen diagnóstico, tamizaje clínico ni asesoramiento médico.*
