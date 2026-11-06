@@ -1,7 +1,7 @@
 [project]
 name = "miad-dsa-metabolic-health-explorer"
-version = "0.1.0"
-description = "Proyecto academico MIAD: exploracion NHANES y futuro prototipo de clasificacion de diabetes reportada"
+version = "0.1.1"
+description = "Proyecto academico MIAD: exploracion NHANES y prototipo de priorizacion para tamizaje de diabetes y prediabetes"
 requires-python = ">=3.10"
 readme = "README.md"
 

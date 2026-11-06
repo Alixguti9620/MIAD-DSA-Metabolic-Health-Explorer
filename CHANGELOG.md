@@ -2,6 +2,15 @@
 
 Este archivo resume hitos del proyecto. Las fechas y versiones se actualizarán cuando el equipo apruebe cada entrega.
 
+## [0.1.1] — Replanteamiento del problema y EDA de la Entrega 2
+- Nueva pregunta de negocio (priorización para tamizaje) con criterio de éxito medible: recall >= 75 % revisando como máximo al 40 % de los adultos.
+- Nuevos datos: seis tablas NHANES 2013-2014 consolidadas en `data/raw/NHANES_consolidado.csv` (reemplazan al subconjunto UCI 887, que tenía 21 positivos).
+- Nuevo objetivo: diabetes o prediabetes reportada (`DIQ010` = 1 o 3); población adulta (6.110 registros, 902 positivos).
+- Sin glucosa ni insulina como variables explicativas (clasificación circular) y sin variables de DIQ que filtran la respuesta.
+- Cuaderno `06_Exploracion_complementaria_nhanes.ipynb` unificado: preparación de datos, exploración de adultos y conclusiones. Figuras `eda_*.png` en `reports/figures/`.
+- Documentos `docs/01`, `docs/02` y `docs/04`, README y CONTRIBUTING actualizados.
+- Pendiente: capturas y HTML de la maqueta, modelos, MLflow, API, tablero y Docker.
+
 ## [0.1.0] — Organización inicial (propuesta)
 
 - Conservada la documentación original del problema y alcance de la Entrega 1.

@@ -46,8 +46,9 @@ Crear un PR **desde la rama de trabajo hacia `main`**. Otro integrante revisa lo
 - Conservar las secciones Markdown que explican preguntas, métodos y limitaciones.
 - Ejecutar las celdas en orden y evitar rutas absolutas de cada computador.
 - No reemplazar resultados exploratorios por valores inventados.
-- Trabajar sobre el subconjunto UCI 887; documentar cualquier ampliación de datos.
-- Para `DIQ010`, separar las respuestas distintas de 1 (sí) y 2 (no) al formar una etiqueta binaria; no presentar el clasificador como diagnóstico.
+- Trabajar con las tablas NHANES 2013-2014 consolidadas en `data/raw/NHANES_consolidado.csv` (ver `scripts/06_Exploracion_complementaria_nhanes.ipynb`); documentar cualquier ampliación de datos.
+- Para `DIQ010`, las respuestas 7 (rehusó), 9 (no sabe) y vacías no se tratan como negativas; la etiqueta `Diabetes` agrupa 1 (sí) y 3 (borderline). No presentar el clasificador como diagnóstico.
+- No usar glucosa ni insulina como variables explicativas: la glucosa es criterio diagnóstico y haría la clasificación circular.
 - Evitar modificar el mismo notebook simultáneamente sin coordinación, para reducir conflictos JSON al fusionar.
 
 ## 4. Git y DVC
