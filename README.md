@@ -28,6 +28,7 @@ Documentación:
 - [05 — Estructura y trabajo en equipo](docs/05_estructura_y_trabajo_en_equipo.md)
 - Exploración inicial de la Entrega 1: [`scripts/03_exploracion_inicial_nhanes.ipynb`](scripts/03_exploracion_inicial_nhanes.ipynb)
 - Exploración complementaria de la Entrega 2: [`scripts/06_Exploracion_complementaria_nhanes.ipynb`](scripts/06_Exploracion_complementaria_nhanes.ipynb)
+- Supuestos y comparativa de modelos de la Entrega 2 (previa a MLflow): [`scripts/07_comparativa_modelos.ipynb`](scripts/07_comparativa_modelos.ipynb)
 
 ## 2. Cambios respecto a la Entrega 1
 
@@ -130,7 +131,7 @@ Desde la raíz del proyecto:
 conda create -n miad-despliegue-proyecto python=3.10 -y
 conda activate miad-despliegue-proyecto
 python -m pip install -r requirements.txt
-python -m pip install ipykernel dvc seaborn scipy
+python -m pip install ipykernel dvc seaborn scipy scikit-learn
 ```
 
 `requirements.txt` incluye `pandas`, `matplotlib` y `ucimlrepo`. El notebook 06 requiere además `seaborn` y `scipy`, y la lectura de archivos `.xpt` se hace con `pandas.read_sas`. En VS Code selecciona el intérprete del entorno `miad-despliegue-proyecto`.
@@ -184,7 +185,7 @@ El desarrollo se hace mediante ramas, commits individuales y Pull Requests revis
 | Datos consolidados y exploración (EDA) | Completos (notebook 06) |
 | Maqueta del prototipo | Dos opciones documentadas; **capturas y HTML pendientes de actualizar** con las variables nuevas |
 | DVC | Seguimiento del conjunto de la Entrega 1; remoto y datos nuevos por configurar |
-| Modelos supervisados (referencia, regresión logística, árboles) | Pendiente |
+| Modelos supervisados (referencia, regresión logística, árboles) | Comparativa preliminar lista (notebook 07); falta empaquetarlos |
 | Experimentos en MLflow (servidor en AWS EC2) | Pendiente |
 | API con FastAPI | Pendiente |
 | Tablero con Streamlit | Pendiente |

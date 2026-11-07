@@ -1,0 +1,10 @@
+Modelo,ROC_AUC,PR_AUC,Recall_40,Desv_recall,Precision_40,pct_sobre_meta
+Solo edad,0.736,0.262,0.717,0.03,0.265,0.2
+LR con pesos (8 vars),0.799,0.402,0.793,0.024,0.293,1.0
+LR sin pesos (8 vars),0.799,0.409,0.792,0.029,0.293,0.867
+LR sin pesos (6 vars),0.795,0.393,0.79,0.021,0.292,1.0
+LR con interacciones,0.808,0.428,0.802,0.027,0.296,1.0
+LR con splines,0.806,0.431,0.789,0.027,0.292,1.0
+LDA,0.797,0.409,0.78,0.028,0.288,0.867
+Random Forest,0.805,0.43,0.784,0.032,0.289,0.867
+Gradient Boosting,0.802,0.421,0.781,0.021,0.288,0.867
