@@ -28,6 +28,8 @@ Documentación:
 - [05 — Estructura y trabajo en equipo](docs/05_estructura_y_trabajo_en_equipo.md)
 - Exploración inicial de la Entrega 1: [`scripts/03_exploracion_inicial_nhanes.ipynb`](scripts/03_exploracion_inicial_nhanes.ipynb)
 - Exploración complementaria de la Entrega 2: [`scripts/06_Exploracion_complementaria_nhanes.ipynb`](scripts/06_Exploracion_complementaria_nhanes.ipynb)
+- Modelos iniciales de la Entrega 2 (con y sin laboratorio): [`scripts/07_modelos_iniciales_v1.ipynb`](scripts/07_modelos_iniciales_v1.ipynb)
+- Validación de supuestos de esos modelos: [`scripts/08_validacion_supuestos.ipynb`](scripts/08_validacion_supuestos.ipynb)
 
 ## 2. Cambios respecto a la Entrega 1
 
@@ -107,7 +109,9 @@ MIAD-DSA-Metabolic-Health-Explorer/
 │   └── mockup/                           # Maquetas HTML y capturas (opciones A y B)
 ├── scripts/
 │   ├── 03_exploracion_inicial_nhanes.ipynb          # EDA de la Entrega 1 (conjunto UCI)
-│   └── 06_Exploracion_complementaria_nhanes.ipynb   # Consolidación de datos y EDA de la Entrega 2
+│   ├── 06_Exploracion_complementaria_nhanes.ipynb   # Consolidación de datos y EDA de la Entrega 2
+│   ├── 07_modelos_iniciales_v1.ipynb                # Modelos con y sin laboratorio
+│   └── 08_validacion_supuestos.ipynb                # Supuestos de los modelos y 20 semillas
 ├── reports/
 │   └── figures/                          # Figuras y tablas del EDA (eda_*.png = Entrega 2)
 ├── .dvcignore

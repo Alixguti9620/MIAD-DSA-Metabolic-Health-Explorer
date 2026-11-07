@@ -14,11 +14,13 @@ La diabetes y la prediabetes son condiciones metabólicas crónicas cuya detecci
 
 Este proyecto utiliza las tablas de NHANES 2013-2014 (diabetes, demografía, medidas corporales, presión arterial y colesterol) para estudiar si esas medidas permiten priorizar a los adultos con mayor probabilidad de tener diabetes o prediabetes diagnosticada.
 
+Como el colesterol requiere una muestra de sangre, el estudio se plantea en dos escenarios: **sin laboratorio** (edad, género, IMC, cintura y presión arterial), que usa solo medidas sencillas de una consulta, y **con laboratorio**, que suma colesterol total y HDL.
+
 ## 1.2 Problema específico
 
 Un equipo de salud pública que diseña una campaña de tamizaje no puede realizar pruebas de laboratorio a toda la población y necesita un criterio objetivo, económico y reproducible para decidir a quién priorizar. Sin una herramienta que combine las medidas disponibles en una consulta básica, la selección depende de reglas de una sola variable (por ejemplo, solo la edad) o del criterio individual del profesional.
 
-El problema que aborda el proyecto es, por tanto, **la falta de un criterio de priorización para el tamizaje de diabetes y prediabetes en adultos basado en medidas no invasivas y de bajo costo, y de una herramienta que lo exponga a analistas y equipos de salud pública**.
+El problema que aborda el proyecto es, por tanto, **la falta de un criterio de priorización para el tamizaje de diabetes y prediabetes en adultos basado en medidas sencillas y de bajo costo (en un escenario sin laboratorio y en otro que suma colesterol), y de una herramienta que lo exponga a analistas y equipos de salud pública**.
 
 ### Por qué un clasificador supervisado
 
@@ -61,12 +63,12 @@ La propuesta tiene dos aportes complementarios:
 - **Autorreporte:** el objetivo es un diagnóstico declarado por el participante, no una confirmación de laboratorio.
 - **Tratamiento:** las personas ya diagnosticadas pueden estar en tratamiento, lo que altera sus valores de laboratorio. En el EDA, el colesterol total resultó menor en los positivos, un posible efecto de ese tratamiento.
 - **Generalización:** no se aplicaron los ponderadores del diseño muestral de NHANES, por lo que las proporciones no son estimaciones representativas de la población estadounidense.
-- **Variables sensibles:** raza/etnia e ingreso se usan para describir y controlar, no como criterio de priorización de personas.
-- **Ética:** el prototipo no toma decisiones automatizadas sobre personas ni ofrece recomendaciones médicas.
+- **Laboratorio:** el colesterol (total y HDL) requiere una muestra de sangre, por lo que no es una medida no invasiva. Por eso se evalúan dos escenarios, sin y con laboratorio, y se reportan por separado.
+- **Variables sensibles:** raza/etnia e ingreso se usan para describir y controlar, no como criterio de priorización de personas. Se decidió no usarlas: priorizar según la raza es delicado en términos de equidad y, como el objetivo es un diagnóstico previo, pueden reflejar el acceso a un diagnóstico y no solo el riesgo.
 
 ## 1.7 Resultado que se espera obtener
 
-Un prototipo denominado **Metabolic Health Explorer** que integra un tablero con análisis descriptivo y un simulador de priorización que consulta un modelo mediante una API, desplegado con Docker. La utilidad se evalúa por el cumplimiento del criterio de éxito de la sección 2.3 (casos capturados frente a esfuerzo de tamizaje, medido sobre una partición de prueba) y por requisitos técnicos de reproducibilidad y disponibilidad de la API. No se anticipan métricas finales antes de entrenar y evaluar los modelos.
+Un prototipo denominado **Metabolic Health Explorer** que integra un tablero con análisis descriptivo y un simulador de priorización que consulta un modelo mediante una API, desplegado con Docker. El simulador ofrecerá los dos escenarios (sin y con laboratorio). La utilidad se evalúa por el cumplimiento del criterio de éxito de la sección 2.3 (casos capturados frente a esfuerzo de tamizaje, medido sobre una partición de prueba) y por requisitos técnicos de reproducibilidad y disponibilidad de la API.
 
 ## Referencias
 

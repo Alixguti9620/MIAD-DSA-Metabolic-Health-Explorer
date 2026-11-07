@@ -6,9 +6,9 @@
 
 ## 4.1 Propósito de la maqueta
 
-La maqueta representa el tablero que usará el usuario final y su relación con la API de inferencia. Cada elemento se diseñó para responder a la pregunta de negocio definida en [`02_pregunta_de_negocio_y_alcance.md`](02_pregunta_de_negocio_y_alcance.md):
+La maqueta representa el tablero que usará el usuario final y su relación con la API de inferencia. Cada elemento se diseñó para responder a la pregunta de negocio definida en 02_pregunta_de_negocio_y_alcance.md:
 
-> ¿Es posible priorizar a los adultos con mayor probabilidad de tener diabetes o prediabetes diagnosticada, usando solo medidas no invasivas y de bajo costo, de modo que se capture al menos el 75 % de los casos tamizando como máximo al 40 % de la población?
+¿Es posible priorizar a los adultos con mayor probabilidad de tener diabetes o prediabetes diagnosticada, usando medidas sencillas y de bajo costo (con y sin laboratorio), de modo que se capture al menos el 75 % de los casos tamizando como máximo al 40 % de la población?
 
 y a las preguntas de apoyo:
 
@@ -51,7 +51,7 @@ Se elaboraron **dos alternativas**. Ambas cubren los tres módulos del alcance f
 
 | # | Elemento | Qué hace | Relación con la pregunta |
 |---|---|---|---|
-| 1 | Formulario de entrada | Las variables del modelo (edad, género, IMC, cintura, presión arterial y colesterol), con validación de tipos, rangos y categorías. | P3 |
+| 1 | Formulario de entrada | Selector de escenario (sin laboratorio / con laboratorio). Campos: edad, género, IMC, cintura y presión arterial; con laboratorio se habilitan colesterol total y HDL. Con validación de tipos, rangos y categorías. | P3 |
 | 2 | Botón «Consultar modelo» | Envía el JSON a `POST /predict` y muestra los errores de validación (422). | Criterio de éxito 4: el tablero usa el modelo **solo** vía API |
 | 3 | Resultado | Probabilidad, si el perfil queda dentro del grupo priorizado (40 % de mayor probabilidad), umbral de decisión, versión del modelo y estado de `GET /health`. | P3 |
 | 4 | Ubicación del perfil | Percentil de cada valor ingresado frente al conjunto de datos. | Une lo descriptivo (P1) con lo predictivo (P3) |
@@ -65,8 +65,8 @@ Se elaboraron **dos alternativas**. Ambas cubren los tres módulos del alcance f
 | # | Elemento | Qué hace | Relación con la pregunta |
 |---|---|---|---|
 | 1 | Ficha de datos | Fuente (seis tablas NHANES 2013-2014), población adulta, definición del objetivo y versión de datos en DVC. | Criterio de éxito 1 (reproducibilidad), P4 |
-| 2 | Métricas frente al modelo base | Recall, precisión, F1, ROC-AUC y PR-AUC frente al clasificador de clase mayoritaria y a la regla de solo edad. | P3 |
-| 3 | Curva de captura y matriz de confusión | Casos capturados según la fracción tamizada, con la meta de 75 % al 40 %, y errores por clase. | P3 |
+| 2 | Métricas frente al modelo base | Recall, precisión, F1, ROC-AUC y PR-AUC, por escenario, frente al clasificador de clase mayoritaria y a la regla de solo edad. Incluye el promedio de 20 semillas y no solo una partición. | P3 |
+| 3 | Curva de captura y matriz de confusión | Casos capturados según la fracción tamizada (por ejemplo 30 %, 40 % y 50 %), con la meta de 75 % al 40 %, y errores por clase. | P3 |
 | 4 | Limitaciones | Advertencias de interpretación y uso. | Sección 2.9 y criterio de éxito 6 |
 
 ## 4.3 Opción B: tablero centrado en el perfil
@@ -136,5 +136,8 @@ La arquitectura es la misma para ambas opciones; solo cambia la organización de
 - **Umbral explícito.** El umbral no será 0,5 por defecto. Se define en la evaluación para cumplir la meta de capturar el 75 % de los casos tamizando como máximo al 40 % de la población.
 - **Priorización, no diagnóstico.** El resultado se expresa como «perfil dentro del grupo priorizado para tamizaje», no como un diagnóstico.
 - **Variables sensibles.** Raza/etnia e ingreso se muestran en lo descriptivo, pero no se ofrecen como entrada de priorización.
+- **Dos escenarios.** El usuario elige si dispone de resultados de laboratorio. El colesterol requiere sangre, así que no se presenta como medida no invasiva, y los resultados se muestran por separado para cada escenario.
+- **Probabilidades creíbles.** Los modelos entrenados con pesos de clase inflan las probabilidades; antes de mostrar una probabilidad en el simulador hay que usar un modelo sin pesos o calibrarla.
+- **Resultado con su variabilidad.** Se muestra el promedio de varias particiones junto con el de la partición base, porque el recall cambia varios puntos de una partición a otra.
 - **Trazabilidad.** Se muestran la versión del modelo y de los datos (DVC) y el estado de la API.
 
