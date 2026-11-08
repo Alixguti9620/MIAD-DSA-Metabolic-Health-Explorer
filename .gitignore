@@ -86,6 +86,7 @@ models/*.pkl
 models/*.joblib
 models/*.pickle
 models/*.onnx
+models/metadatos.json
 
 # ------------------------------------------
 # 9. Logs y archivos temporales

@@ -85,6 +85,25 @@ El análisis completo está en las secciones 3 y 4 del notebook 06, con comentar
 - La regla de solo edad captura 72,3 % de los casos al tamizar al 40 % de la población; ninguna otra regla simple llega a 63 %.
 - Valores nulos entre 4 % y 12 % por variable, similares entre clases; la presión diastólica ~0 es un artefacto de codificación y se trata como nulo.
 
+## Tablero
+
+Tablero hecho con Streamlit, siguiendo la opción A de la maqueta (`docs/04_maqueta_prototipo.md`). Tiene tres pantallas:
+
+- **Exploración:** casos de diabetes o prediabetes por edad, IMC y otras variables, con filtros.
+- **Simulador:** ingresa un perfil (sin o con laboratorio) y mira si queda dentro del 40 % de adultos que se priorizaría, con una explicación de qué pesa en el resultado.
+- **Modelo y datos:** resultados, curva de captura, estabilidad con 20 semillas, coeficientes y la evidencia de MLflow en EC2.
+
+Cómo correrlo, desde la raíz del repositorio:
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run app/tablero.py
+```
+
+La primera vez entrena los modelos del simulador (unos 5 segundos) y los guarda en `models/`. También se pueden entrenar a mano con `python src/entrenar_modelos.py`. Los archivos `.joblib` no se suben al repo (están en el `.gitignore`).
+
+Cada pantalla se puede abrir directo con `?pantalla=Simulador` en la URL. Por ahora el tablero carga los modelos desde archivo; la conexión con una API queda para la siguiente entrega.
+
 ## 5. Estructura del repositorio
 
 ```text
@@ -101,6 +120,13 @@ MIAD-DSA-Metabolic-Health-Explorer/
 │       ├── NHANES_consolidado.csv        # Conjunto consolidado (Entrega 2)
 │       ├── NHANES_age_prediction.csv.dvc # Referencia DVC del conjunto de la Entrega 1
 │       └── .gitignore
+├── app/
+│   ├── tablero.py                        # Tablero (Streamlit)
+│   └── predictor.py                      # Capa de predicción (luego se cambia por la API)
+├── src/
+│   └── entrenar_modelos.py               # Entrena los modelos del simulador
+├── models/                               # Modelos entrenados (no se suben al repo)
+├── .streamlit/config.toml                # Tema del tablero
 ├── docs/
 │   ├── 01_problema_y_contexto.md
 │   ├── 02_pregunta_de_negocio_y_alcance.md
@@ -188,10 +214,10 @@ El desarrollo se hace mediante ramas, commits individuales y Pull Requests revis
 | Datos consolidados y exploración (EDA) | Completos (notebook 06) |
 | Maqueta del prototipo | Dos opciones documentadas; **capturas y HTML pendientes de actualizar** con las variables nuevas |
 | DVC | Seguimiento del conjunto de la Entrega 1; remoto y datos nuevos por configurar |
-| Modelos supervisados (referencia, regresión logística, árboles) | Pendiente |
-| Experimentos en MLflow (servidor en AWS EC2) | Pendiente |
+| Modelos supervisados (referencia, regresión logística, splines, árboles) | Listos (cuadernos 07 y 08) |
+| Experimentos en MLflow (servidor en AWS EC2) | Registrados (cuaderno `07_modelos_mlflow_ec2`; capturas en `docs/evidencias_mlflow/`) |
 | API con FastAPI | Pendiente |
-| Tablero con Streamlit | Pendiente |
+| Tablero con Streamlit | Listo (`app/tablero.py`); carga los modelos desde archivo |
 | Contenedores Docker | Pendiente |
 
 Versionado propuesto: `0.1.0` documentación inicial, `0.2.0` modelado, `0.3.0` API, `0.4.0` tablero, `0.5.0` Docker y `1.0.0` prototipo final. Las versiones futuras **no están liberadas**.
