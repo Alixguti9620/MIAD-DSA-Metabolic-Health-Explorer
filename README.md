@@ -152,7 +152,7 @@ Los experimentos oficiales de la entrega son los registrados en el servidor MLfl
 
 Los ocho experimentos finales (cuatro modelos en los escenarios sin y con laboratorio) se ejecutaron con `src/experimentos_mlflow.py` en una instancia de AWS EC2 (usuario `ubuntu`, commit `689ea9d`) y quedaron registrados en el experimento `MIAD-Metabolic-Health-Explorer-final`.
 
-- [Lista de las 8 corridas finales](docs/evidencias_mlflow_final/MLflow_Experimentos_Finales.png)
+- [Lista de las 8 corridas finales](docs/evidencias_mlflow_final/MLflow_EC2_IP_Visible_FINAL.png), con la IP de la instancia EC2 visible en la URL del servidor MLflow (`172.31.24.150:8050`)
 - [Logística con splines e interacción, sin laboratorio](docs/evidencias_mlflow_final/MLflow_Run_LogisticaSplines_sin_lab.png): recall@40 % en prueba 0,761
 - [Logística con splines e interacción, con laboratorio](docs/evidencias_mlflow_final/MLflow_Run_LogisticaSplines_con_lab.png): recall@40 % en prueba 0,783
 
