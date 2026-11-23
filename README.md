@@ -152,9 +152,15 @@ Los experimentos oficiales de la entrega son los registrados en el servidor MLfl
 
 Los ocho experimentos finales (cuatro modelos en los escenarios sin y con laboratorio) se ejecutaron con `src/experimentos_mlflow.py` en una instancia de AWS EC2 (usuario `ubuntu`, commit `689ea9d`) y quedaron registrados en el experimento `MIAD-Metabolic-Health-Explorer-final`.
 
-- [Lista de las 8 corridas finales](docs/evidencias_mlflow_final/MLflow_EC2_IP_Visible_FINAL.png), con la IP de la instancia EC2 visible en la URL del servidor MLflow (`172.31.24.150:8050`)
-- [Logística con splines e interacción, sin laboratorio](docs/evidencias_mlflow_final/MLflow_Run_LogisticaSplines_sin_lab.png): recall@40 % en prueba 0,761
-- [Logística con splines e interacción, con laboratorio](docs/evidencias_mlflow_final/MLflow_Run_LogisticaSplines_con_lab.png): recall@40 % en prueba 0,783
+- [Lista de las 8 corridas finales](docs/evidencias_entrega_final/mlflow/01_final_lista_8_corridas.png), con la IP pública de la instancia EC2 en la URL del servidor MLflow (`54.167.5.59:8050`)
+- [Logística con splines e interacción, sin laboratorio](docs/evidencias_entrega_final/mlflow/02_final_splines_sin_lab_metricas.png): recall@40 % en prueba 0,761
+- [Logística con splines e interacción, con laboratorio](docs/evidencias_entrega_final/mlflow/03_final_splines_con_lab_metricas.png): recall@40 % en prueba 0,783
+
+El experimento de robustez (`src/experimentos_robustez.py`, 20 particiones) también quedó registrado en el MLflow de EC2, como `MIAD-Metabolic-Health-Explorer-robustez`, con 11 corridas.
+
+### Evidencias de la entrega final
+
+[`docs/evidencias_entrega_final/`](docs/evidencias_entrega_final/README.md) reúne las capturas del despliegue en AWS EC2 (consola, terminal, Docker y security group), del tablero y la API funcionando con la IP pública de la instancia, y de los dos experimentos en MLflow. El índice de esa carpeta describe qué muestra cada imagen.
 
 ## 7. API
 
@@ -344,8 +350,8 @@ El desarrollo se hace mediante ramas, commits individuales y Pull Requests revis
 | API con FastAPI | Lista (`api/`, 20 pruebas), con priorización por lotes |
 | Tablero con Streamlit | Listo (`app/tablero.py`), con pantalla de lotes; consume la API |
 | Contenedores Docker | Listos y probados en local (`docker-compose.yml`) |
-| Despliegue en AWS (EC2) | **Pendiente de soportes** (capturas, IP y URL) |
-| Experimentos oficiales en MLflow (EC2) con `experimentos_mlflow.py` | **Pendiente de ejecutar en EC2** |
+| Despliegue en AWS (EC2) | Hecho: API y tablero con Docker en EC2 (evidencias en `docs/evidencias_entrega_final/`) |
+| Experimentos oficiales en MLflow (EC2) con `experimentos_mlflow.py` y `experimentos_robustez.py` | Hechos: 8 corridas finales y 11 de robustez |
 | Manual de usuario y manual de instalación | Pendientes |
 | Variable objetivo con hemoglobina glicosilada | Trabajo futuro (limitación declarada) |
 
