@@ -148,6 +148,14 @@ Ambos van **sin** pesos de clase para que la probabilidad mostrada no salga infl
 
 Los experimentos oficiales de la entrega son los registrados en el servidor MLflow de AWS EC2 (capturas en `docs/evidencias_mlflow/`).
 
+### Evidencias finales de MLflow
+
+Los ocho experimentos finales (cuatro modelos en los escenarios sin y con laboratorio) se ejecutaron con `src/experimentos_mlflow.py` en una instancia de AWS EC2 (usuario `ubuntu`, commit `689ea9d`) y quedaron registrados en el experimento `MIAD-Metabolic-Health-Explorer-final`.
+
+- [Lista de las 8 corridas finales](docs/evidencias_mlflow_final/MLflow_Experimentos_Finales.png)
+- [Logística con splines e interacción, sin laboratorio](docs/evidencias_mlflow_final/MLflow_Run_LogisticaSplines_sin_lab.png): recall@40 % en prueba 0,761
+- [Logística con splines e interacción, con laboratorio](docs/evidencias_mlflow_final/MLflow_Run_LogisticaSplines_con_lab.png): recall@40 % en prueba 0,783
+
 ## 7. API
 
 API REST con FastAPI en `api/`, desarrollada por **Antonio Agudelo** (`/health`, `/predict`, `/model/info`, validación de entradas y pruebas). Sobre ella se agregó la priorización por lotes.
