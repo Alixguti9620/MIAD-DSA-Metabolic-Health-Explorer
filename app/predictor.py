@@ -1,9 +1,12 @@
 """Capa de predicción del tablero.
 
-Todo lo que el tablero necesita del modelo pasa por `predecir()`. Cuando exista la
-API (entrega siguiente), solo hay que cambiar el cuerpo de esta función por una
-llamada HTTP; el resto del tablero no se toca.
+Todo lo que el tablero necesita del modelo pasa por `predecir()` y `priorizar_lote()`.
+Si existe la variable de entorno API_URL (por ejemplo http://api:8000), las
+predicciones se piden a la API REST. Si no existe, se usa el mismo servicio de la API
+cargado en el proceso, para poder abrir el tablero sin levantar la API (desarrollo).
 """
+import io
+import os
 import sys
 from pathlib import Path
 
@@ -28,28 +31,70 @@ def cargar_modelos():
     return em.cargar_o_entrenar()
 
 
+API_URL = os.environ.get("API_URL", "").rstrip("/")
+TIEMPO_ESPERA = 60
+
+
+@st.cache_resource(show_spinner=False)
+def _servicio_local():
+    sys.path.insert(0, str(RAIZ))
+    from api.servicio import Servicio  # noqa: E402
+    return Servicio()
+
+
+def modo_prediccion():
+    """Texto que se muestra al usuario sobre de dónde salen las predicciones."""
+    return f"API en {API_URL}" if API_URL else "modelo local (sin API)"
+
+
+def _post(ruta, **kwargs):
+    import requests
+    r = requests.post(f"{API_URL}{ruta}", timeout=TIEMPO_ESPERA, **kwargs)
+    if r.status_code == 422:
+        detalle = r.json().get("detail")
+        raise ValueError(detalle["errores"] if isinstance(detalle, dict) else detalle)
+    r.raise_for_status()
+    return r.json()
+
+
 def predecir(escenario, perfil):
     """Probabilidad de un perfil y explicación de qué variables pesaron.
 
     escenario: "sin_lab" o "con_lab".
     perfil: diccionario {variable: valor} con las variables del escenario.
     """
-    modelos, meta = cargar_modelos()
-    modelo, info = modelos[escenario], meta[escenario]
-    variables = info["variables"]
+    if API_URL:
+        return _post("/predict", json={k: (int(v) if k == "Mujer" else float(v)) for k, v in perfil.items()})
+    return _servicio_local().predecir(escenario, perfil)
 
-    fila = pd.DataFrame([{v: perfil[v] for v in variables}])
-    probabilidad = float(modelo.predict_proba(fila)[0, 1])
 
-    # aporte de cada variable al resultado (en escala log-odds), respecto a una persona promedio
-    escalador = modelo.named_steps["escalar"]
-    coef = modelo.named_steps["modelo"].coef_[0]
-    z = (fila.values[0] - escalador.mean_) / escalador.scale_
-    aportes = dict(zip(variables, (coef * z).tolist()))
+def priorizar_lote(df, escenario="auto"):
+    """Ranking de una tabla de personas (una fila por persona).
 
-    return {
-        "probabilidad": probabilidad,
-        "umbral": info["umbral"],
-        "prioriza": probabilidad >= info["umbral"],
-        "aportes": aportes,
-    }
+    Devuelve el diccionario de la API (`resultados` ordenados de mayor a menor probabilidad).
+    Lanza ValueError con el detalle si alguna fila no es válida.
+    """
+    if API_URL:
+        csv = df.to_csv(index=False).encode("utf-8")
+        return _post("/predict/batch/csv", params={"escenario": escenario},
+                     files={"archivo": ("lista.csv", io.BytesIO(csv), "text/csv")})
+    sys.path.insert(0, str(RAIZ))
+    from api.schemas import PerfilLote
+    from pydantic import ValidationError
+    perfiles, errores = [], []
+    for i, fila in enumerate(df.to_dict("records"), start=1):
+        fila = {k: (None if pd.isna(v) else v) for k, v in fila.items()}
+        if fila.get("Id") is not None:
+            fila["Id"] = str(fila["Id"])
+        try:
+            perfiles.append(PerfilLote(**fila))
+        except ValidationError as e:
+            errores.append(f"fila {i}: " + "; ".join(f"{x['loc'][0]}: {x['msg']}" for x in e.errors()))
+    if errores:
+        raise ValueError(errores[:20])
+    con_lab = sum(p.Colesterol_Total is not None for p in perfiles)
+    if escenario == "auto":
+        if con_lab not in (0, len(perfiles)):
+            raise ValueError("Hay filas con y sin colesterol. Completa el laboratorio en todas o elige 'sin_lab'.")
+        escenario = "con_lab" if con_lab else "sin_lab"
+    return _servicio_local().predecir_lote(escenario, [p.model_dump() for p in perfiles])
