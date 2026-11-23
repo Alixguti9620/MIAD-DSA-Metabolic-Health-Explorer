@@ -21,10 +21,8 @@ class Servicio:
         probabilidad = float(modelo.predict_proba(fila)[0, 1])
 
         # aporte de cada variable en log-odds, respecto a una persona promedio
-        escalador = modelo.named_steps["escalar"]
-        coef = modelo.named_steps["modelo"].coef_[0]
-        z = (fila.values[0] - escalador.mean_) / escalador.scale_
-        aportes = dict(zip(variables, (coef * z).tolist()))
+        # (sirve para la logística simple y para la de splines; ver src/entrenar_modelos.py)
+        aportes = em.aportes(modelo, info, fila)
 
         advertencias = [
             f"{v}={perfil[v]:g} está fuera del rango habitual de entrenamiento "
@@ -41,6 +39,7 @@ class Servicio:
             "aportes": aportes,
             "advertencias": advertencias,
             "version_modelo": self.version,
+            "tipo_modelo": info["tipo_modelo"],
         }
 
     def predecir_lote(self, escenario: str, perfiles: list[dict]) -> dict:
@@ -76,5 +75,5 @@ class Servicio:
         """Metadatos del modelo sin la curva de captura (que es voluminosa)."""
         salida = {k: v for k, v in self.meta.items() if k not in em.ESCENARIOS}
         for esc in em.ESCENARIOS:
-            salida[esc] = {k: v for k, v in self.meta[esc].items() if k != "curva_captura"}
+            salida[esc] = {k: v for k, v in self.meta[esc].items() if k not in ("curva_captura", "explicacion")}
         return salida

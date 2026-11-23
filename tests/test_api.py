@@ -43,13 +43,12 @@ def test_mayor_edad_mayor_probabilidad(client):
 
 
 def test_aportes_coherentes_con_probabilidad(client):
-    """intercepto + suma de aportes = log-odds de la probabilidad."""
+    """logit de referencia + suma de aportes = log-odds de la probabilidad."""
     import math
     s = app.state.servicio
     d = client.post("/predict", json=SIN_LAB).json()
-    # los aportes se miden frente a una persona promedio: con z=0 queda el intercepto
-    interc = s.modelos["sin_lab"].named_steps["modelo"].intercept_[0]
-    logit = interc + sum(d["aportes"].values())
+    # los aportes se miden frente a una persona promedio del entrenamiento
+    logit = s.meta["sin_lab"]["explicacion"]["logit_referencia"] + sum(d["aportes"].values())
     assert math.isclose(1 / (1 + math.exp(-logit)), d["probabilidad"], rel_tol=1e-6)
 
 
@@ -96,7 +95,7 @@ def test_batch_ranking_y_recorte_40(client):
     assert probs == sorted(probs, reverse=True)
     assert [x["posicion"] for x in d["resultados"]] == list(range(1, 11))
     assert sum(x["prioriza_lote"] for x in d["resultados"]) == 4
-    assert d["resultados"][0]["id"] == "p9"  # el de mayor edad queda primero
+    assert all(x["id"] == f"p{x['fila'] - 1}" for x in d["resultados"])  # cada Id sigue a su fila
 
 
 def test_batch_coincide_con_predict_individual(client):
@@ -125,7 +124,7 @@ def test_batch_csv(client):
     csv = pd.DataFrame(_lote(10)).drop(columns=["Id"]).assign(Id=range(100, 110)).to_csv(index=False)
     r = client.post("/predict/batch/csv", files={"archivo": ("lista.csv", io.BytesIO(csv.encode()), "text/csv")})
     assert r.status_code == 200
-    assert r.json()["resultados"][0]["id"] == "109"
+    assert all(x["id"] == str(99 + x["fila"]) for x in r.json()["resultados"])  # Id numérico llega como texto
 
 
 def test_batch_csv_fila_invalida(client):
@@ -136,3 +135,16 @@ def test_batch_csv_fila_invalida(client):
     r = client.post("/predict/batch/csv", files={"archivo": ("l.csv", io.BytesIO(df.to_csv(index=False).encode()), "text/csv")})
     assert r.status_code == 422
     assert "fila 2" in str(r.json())
+
+
+def test_modelo_por_escenario(client):
+    assert client.post("/predict", json=SIN_LAB).json()["tipo_modelo"] == "splines_interaccion"
+    assert client.post("/predict", json=CON_LAB).json()["tipo_modelo"] == "logistica"
+
+
+def test_aportes_coherentes_con_lab(client):
+    import math
+    s = app.state.servicio
+    d = client.post("/predict", json=CON_LAB).json()
+    logit = s.meta["con_lab"]["explicacion"]["logit_referencia"] + sum(d["aportes"].values())
+    assert math.isclose(1 / (1 + math.exp(-logit)), d["probabilidad"], rel_tol=1e-6)

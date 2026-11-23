@@ -1,0 +1,5 @@
+escenario,A,B,dif_media,A_gana,empate,B_gana,p_wilcoxon
+sin_lab,Splines_interaccion_sin_pesos,Logistica_sin_pesos,0.00972222222222221,15,4,1,0.004258526049909068
+sin_lab,Splines_interaccion_con_pesos,Logistica_con_pesos,0.00722222222222223,14,5,1,0.008059107783248393
+con_lab,Splines_interaccion_sin_pesos,Logistica_sin_pesos,-0.0011111111111111072,6,3,11,0.550609253414064
+con_lab,Splines_interaccion_con_pesos,Logistica_con_pesos,-0.0025000000000000135,6,5,9,0.3029893641279776

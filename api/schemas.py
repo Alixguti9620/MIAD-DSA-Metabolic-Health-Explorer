@@ -51,6 +51,7 @@ class Prediccion(BaseModel):
     aportes: dict[str, float] = Field(description="Aporte de cada variable en log-odds, frente a una persona promedio")
     advertencias: list[str] = Field(description="Valores fuera del rango p1-p99 de entrenamiento")
     version_modelo: str = Field(description="commit@fecha de entrenamiento")
+    tipo_modelo: str = Field(description="logistica o splines_interaccion")
 
 
 # ---------------------------------------------------------------- lotes (Alix)

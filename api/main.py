@@ -27,9 +27,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Metabolic Health Explorer API",
-    description="Prioriza adultos para tamizaje de diabetes/prediabetes con regresión logística. "
+    description="Prioriza adultos para tamizaje de diabetes/prediabetes con regresión logística (con splines e interacción en el escenario sin laboratorio). "
                 "No es un dispositivo de diagnóstico.",
-    version="0.4.0",
+    version="0.5.0",
     lifespan=lifespan,
 )
 

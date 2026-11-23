@@ -347,7 +347,7 @@ def pagina_modelo(datos):
     st.markdown("&nbsp;")
 
     t1, t2, t3, t4, t5 = st.tabs(["Resultados", "Curva de captura", "Estabilidad (20 semillas)",
-                                  "Qué pesa en el modelo", "Evidencia MLflow"])
+                                  "Efecto de cada variable", "Evidencia MLflow"])
 
     with t1:
         st.caption("Evaluación en el 20 % de adultos que el modelo no vio al entrenar (1.222 personas, 180 con el diagnóstico).")
@@ -414,20 +414,53 @@ def pagina_modelo(datos):
         else:
             st.info("No se encontró reports/figures/supuestos_escenarios_recall_semillas.csv.")
 
+        ruta_rob = RAIZ / "reports" / "figures" / "robustez_splines_vs_logistica.csv"
+        ruta_par = RAIZ / "reports" / "figures" / "robustez_comparacion_pareada.csv"
+        if ruta_rob.exists() and ruta_par.exists():
+            st.markdown("#### Elección del modelo servido: logística simple frente a splines con interacción")
+            st.write("20 particiones nuevas, sin pesos de clase y buscando los hiperparámetros dentro de cada "
+                     "entrenamiento (`src/experimentos_robustez.py`).")
+            rob = pd.read_csv(ruta_rob)
+            rob = rob[rob["modelo"].isin(["Edad_sola", "Logistica_sin_pesos", "Splines_interaccion_sin_pesos"])].copy()
+            rob["modelo"] = rob["modelo"].map({"Edad_sola": "Solo la edad", "Logistica_sin_pesos": "Logística simple",
+                                               "Splines_interaccion_sin_pesos": "Splines con interacción"})
+            rob["escenario"] = rob["escenario"].map({"sin_lab": "Sin laboratorio", "con_lab": "Con laboratorio"})
+            tabla_rob = rob.set_index(["escenario", "modelo"])[
+                ["recall_40_test_media", "recall_40_test_min", "particiones_sobre_meta", "pr_auc_test_media"]]
+            tabla_rob.columns = ["Recall@40 % promedio", "Mínimo", "Particiones sobre la meta (de 20)", "PR-AUC"]
+            tabla_rob.index = [f"{e} · {m}" for e, m in tabla_rob.index]
+            tabla_rob["Particiones sobre la meta (de 20)"] = tabla_rob["Particiones sobre la meta (de 20)"].astype(int)
+            mostrar_tabla(tabla_rob, 3)
+            par = pd.read_csv(ruta_par)
+            for esc, titulo in (("sin_lab", "Sin laboratorio"), ("con_lab", "Con laboratorio")):
+                f = par[(par["escenario"] == esc) & (par["A"] == "Splines_interaccion_sin_pesos")].iloc[0]
+                st.write(f"**{titulo}:** los splines ganan en {int(f['A_gana'])} particiones, empatan en {int(f['empate'])} "
+                         f"y pierden en {int(f['B_gana'])} (diferencia media {num(f['dif_media'] * 100)} puntos, "
+                         f"Wilcoxon p = {f['p_wilcoxon']:.3f}).")
+            st.caption("Por eso se sirven splines con interacción sin laboratorio y la logística simple con laboratorio, "
+                       "donde los splines no mejoran.")
+
     with t4:
-        st.write("Cuánto cambian los 'odds' de tener el diagnóstico al subir una desviación estándar de cada variable "
-                 "(1 = sin efecto). Son asociaciones, no causas.")
+        st.write("Cuánto cambian los 'odds' de tener el diagnóstico al pasar cada variable del percentil 25 al 75 "
+                 "de los adultos (sexo: de hombre a mujer), con las demás en la mediana. 1 = sin efecto. "
+                 "Son asociaciones, no causas.")
         filas = []
         for clave, titulo in (("sin_lab", "Sin laboratorio"), ("con_lab", "Con laboratorio")):
-            for v, o in meta[clave]["odds_ratio"].items():
-                filas.append({"Escenario": titulo, "Variable": NOMBRES_VARIABLES[v], "Odds ratio": o})
+            for v, e in meta[clave]["efectos_p25_p75"].items():
+                filas.append({"Escenario": titulo, "Variable": NOMBRES_VARIABLES[v], "Odds ratio": e["odds_ratio"],
+                              "Rango": "hombre → mujer" if v == "Mujer" else f"{num(e['desde'])} → {num(e['hasta'])}"})
         dfo = pd.DataFrame(filas)
         fig = px.bar(dfo, y="Variable", x="Odds ratio", color="Escenario", barmode="group", orientation="h",
-                     color_discrete_map={"Sin laboratorio": TEAL, "Con laboratorio": CORAL})
+                     hover_data={"Rango": True}, color_discrete_map={"Sin laboratorio": TEAL, "Con laboratorio": CORAL})
         fig.add_vline(x=1, line_color="#0F172A", line_width=1)
         st.plotly_chart(diseno(fig, 430), use_container_width=True)
-        st.caption("El colesterol total sale con efecto contrario al que uno esperaría. Probablemente refleja que muchas "
-                   "personas ya diagnosticadas toman medicamentos que bajan el colesterol.")
+        tipos = {"splines_interaccion": "regresión logística con splines en edad y cintura e interacción edad × cintura",
+                 "logistica": "regresión logística"}
+        st.caption(f"Sin laboratorio: {tipos[meta['sin_lab']['tipo_modelo']]}. "
+                   f"Con laboratorio: {tipos[meta['con_lab']['tipo_modelo']]}. Con splines el efecto de la edad y de la "
+                   "cintura no es constante, por eso se mide entre dos percentiles. El colesterol total sale con efecto "
+                   "contrario al esperado; probablemente refleja que muchas personas ya diagnosticadas toman medicamentos "
+                   "que bajan el colesterol.")
 
     with t5:
         carpeta = RAIZ / "docs" / "evidencias_mlflow"
