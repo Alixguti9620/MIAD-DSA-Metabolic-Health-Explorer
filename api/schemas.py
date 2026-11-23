@@ -51,3 +51,38 @@ class Prediccion(BaseModel):
     aportes: dict[str, float] = Field(description="Aporte de cada variable en log-odds, frente a una persona promedio")
     advertencias: list[str] = Field(description="Valores fuera del rango p1-p99 de entrenamiento")
     version_modelo: str = Field(description="commit@fecha de entrenamiento")
+
+
+# ---------------------------------------------------------------- lotes (Alix)
+# Priorización de una lista de personas. Se agrega sobre la API de Antonio sin
+# modificar sus contratos anteriores.
+class PerfilLote(Perfil):
+    """Perfil con un identificador opcional para reconocer a la persona en el ranking."""
+    Id: str | None = Field(None, max_length=60, description="Identificador opcional (se devuelve igual)")
+
+
+class Lote(BaseModel):
+    perfiles: list[PerfilLote] = Field(min_length=1, max_length=20000)
+    escenario: Literal["auto", "sin_lab", "con_lab"] = Field(
+        "auto", description="auto: con_lab si todos traen colesterol, sin_lab si ninguno lo trae")
+
+
+class ResultadoLote(BaseModel):
+    posicion: int = Field(description="1 = mayor probabilidad del lote")
+    fila: int = Field(description="Número de fila en la lista enviada (desde 1)")
+    id: str | None
+    probabilidad: float
+    prioriza_lote: bool = Field(description="Está dentro del 40 % con mayor probabilidad de ESTA lista")
+    prioriza_umbral: bool = Field(description="Probabilidad >= umbral poblacional del modelo")
+    advertencias: list[str]
+
+
+class PrediccionLote(BaseModel):
+    escenario: Escenario
+    n: int
+    fraccion: float = Field(description="Fracción de la lista que se marca como priorizada")
+    n_priorizados_lote: int
+    n_priorizados_umbral: int
+    umbral: float
+    version_modelo: str
+    resultados: list[ResultadoLote] = Field(description="Ordenados de mayor a menor probabilidad")

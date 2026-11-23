@@ -79,3 +79,60 @@ def test_model_info(client):
     d = client.get("/model/info").json()
     assert "curva_captura" not in d["sin_lab"]
     assert d["sin_lab"]["metricas_prueba"]["recall_40"] > 0
+
+
+# ---------------------------------------------------------------- lotes (Alix)
+def _lote(n=10, con_lab=False):
+    base = CON_LAB if con_lab else SIN_LAB
+    return [{**base, "Edad": 20 + 6 * i, "Id": f"p{i}"} for i in range(n)]
+
+
+def test_batch_ranking_y_recorte_40(client):
+    r = client.post("/predict/batch", json={"perfiles": _lote(10)})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["n"] == 10 and d["n_priorizados_lote"] == 4
+    probs = [x["probabilidad"] for x in d["resultados"]]
+    assert probs == sorted(probs, reverse=True)
+    assert [x["posicion"] for x in d["resultados"]] == list(range(1, 11))
+    assert sum(x["prioriza_lote"] for x in d["resultados"]) == 4
+    assert d["resultados"][0]["id"] == "p9"  # el de mayor edad queda primero
+
+
+def test_batch_coincide_con_predict_individual(client):
+    d = client.post("/predict/batch", json={"perfiles": _lote(3)}).json()
+    for x in d["resultados"]:
+        individual = client.post("/predict", json={k: v for k, v in _lote(3)[x["fila"] - 1].items() if k != "Id"}).json()
+        assert abs(individual["probabilidad"] - x["probabilidad"]) < 1e-9
+
+
+def test_batch_con_lab_auto(client):
+    assert client.post("/predict/batch", json={"perfiles": _lote(5, True)}).json()["escenario"] == "con_lab"
+
+
+def test_batch_mezcla_lab_422(client):
+    perfiles = _lote(4) + _lote(2, True)
+    assert client.post("/predict/batch", json={"perfiles": perfiles}).status_code == 422
+
+
+def test_batch_vacio_422(client):
+    assert client.post("/predict/batch", json={"perfiles": []}).status_code == 422
+
+
+def test_batch_csv(client):
+    import io
+    import pandas as pd
+    csv = pd.DataFrame(_lote(10)).drop(columns=["Id"]).assign(Id=range(100, 110)).to_csv(index=False)
+    r = client.post("/predict/batch/csv", files={"archivo": ("lista.csv", io.BytesIO(csv.encode()), "text/csv")})
+    assert r.status_code == 200
+    assert r.json()["resultados"][0]["id"] == "109"
+
+
+def test_batch_csv_fila_invalida(client):
+    import io
+    import pandas as pd
+    df = pd.DataFrame(_lote(3)).drop(columns=["Id"])
+    df.loc[1, "Edad"] = 10
+    r = client.post("/predict/batch/csv", files={"archivo": ("l.csv", io.BytesIO(df.to_csv(index=False).encode()), "text/csv")})
+    assert r.status_code == 422
+    assert "fila 2" in str(r.json())
