@@ -14,6 +14,7 @@ salen infladas, y el simulador muestra una probabilidad. Ordena casi igual que
 la versión con pesos de los cuadernos 07 y 08.
 """
 import json
+import os
 import subprocess
 from datetime import date
 from pathlib import Path
@@ -82,6 +83,8 @@ def crear_pipeline():
 
 
 def _codigo_version():
+    if os.environ.get("VERSION_CODIGO"):  # dentro de Docker no hay .git: se pasa al construir
+        return os.environ["VERSION_CODIGO"]
     try:
         salida = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=RAIZ,
                                 capture_output=True, text=True, timeout=5)

@@ -1,0 +1,26 @@
+# API de inferencia (FastAPI). Construir desde la raiz del repositorio:
+#   docker build -f Dockerfile.api -t metabolic-api .
+FROM python:3.11-slim
+
+ARG VERSION_CODIGO=sin_git
+ENV VERSION_CODIGO=${VERSION_CODIGO} PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+COPY requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+COPY src/ src/
+COPY api/ api/
+COPY data/raw/NHANES_consolidado.csv data/raw/NHANES_consolidado.csv
+
+# Los modelos no estan en git (.gitignore): se entrenan al construir la imagen,
+# con la misma version de scikit-learn que se usa para servirlos.
+RUN python src/entrenar_modelos.py
+
+RUN useradd --create-home appuser && chown -R appuser /app
+USER appuser
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).status == 200 else 1)"
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
