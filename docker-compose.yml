@@ -1,0 +1,28 @@
+# Levanta la API y el tablero:  docker compose up --build -d
+#   API:      http://localhost:8000/docs
+#   Tablero:  http://localhost:8501
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      args:
+        VERSION_CODIGO: ${VERSION_CODIGO:-sin_git}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  tablero:
+    build:
+      context: .
+      dockerfile: Dockerfile.tablero
+      args:
+        VERSION_CODIGO: ${VERSION_CODIGO:-sin_git}
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

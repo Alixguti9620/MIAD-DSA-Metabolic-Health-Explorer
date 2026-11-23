@@ -88,6 +88,10 @@ models/*.pickle
 models/*.onnx
 models/metadatos.json
 
+# MLflow local (los experimentos oficiales van al servidor de EC2)
+mlflow.db
+mlruns/
+
 # ------------------------------------------
 # 9. Logs y archivos temporales
 # ------------------------------------------

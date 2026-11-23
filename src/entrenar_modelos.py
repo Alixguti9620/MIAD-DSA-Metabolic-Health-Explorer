@@ -9,11 +9,23 @@ métricas, el umbral y los datos que usa el tablero. Los .joblib están en el
 .gitignore, así que no se suben al repo: se regeneran con este script, o el
 tablero los entrena solo la primera vez que se abre.
 
-Modelo: regresión logística SIN pesos de clase. Con pesos las probabilidades
-salen infladas, y el simulador muestra una probabilidad. Ordena casi igual que
-la versión con pesos de los cuadernos 07 y 08.
+Modelos (sin pesos de clase: con pesos las probabilidades salen infladas, y el
+simulador muestra una probabilidad; el ranking casi no cambia):
+  * sin_lab: regresión logística con splines en edad y cintura e interacción
+    edad x cintura. En 20 particiones supera a la logística simple en 15, empata
+    en 4 y pierde en 1 (Wilcoxon p = 0,004) y cumple la meta en las 20
+    (src/experimentos_robustez.py). El C y el número de nudos se eligen con
+    validación cruzada dentro del entrenamiento.
+  * con_lab: regresión logística simple. Con laboratorio los splines no mejoran
+    el recall@40 % (p = 0,55), así que se mantiene el modelo más simple.
+
+Explicación ("aportes"): el logit de los dos modelos es una suma de términos por
+variable. El aporte de una variable es la diferencia de sus términos frente a los
+de una persona promedio del entrenamiento; el término de interacción se reparte
+por mitades entre edad y cintura. Así, logit_referencia + suma de aportes = logit.
 """
 import json
+import os
 import subprocess
 from datetime import date
 from pathlib import Path
@@ -23,10 +35,12 @@ import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.metrics import average_precision_score, make_scorer, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_predict, train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import PolynomialFeatures, SplineTransformer, StandardScaler
 
 RAIZ = Path(__file__).resolve().parents[1]
 RUTA_DATOS = RAIZ / "data" / "raw" / "NHANES_consolidado.csv"
@@ -40,6 +54,9 @@ C_REGULARIZACION = 0.1
 VARS_SIN_LAB = ["Edad", "Mujer", "IMC", "Cintura_cm", "Presion_Sistolica", "Presion_Diastolica"]
 VARS_CON_LAB = VARS_SIN_LAB + ["Colesterol_Total", "Colesterol_HDL"]
 ESCENARIOS = {"sin_lab": VARS_SIN_LAB, "con_lab": VARS_CON_LAB}
+TIPO_MODELO = {"sin_lab": "splines_interaccion", "con_lab": "logistica"}
+VARS_SPLINE = ["Edad", "Cintura_cm"]
+REJILLA_SPLINES = {"modelo__C": [0.01, 0.1, 1, 10], "preparar__splines__spline__n_knots": [3, 4, 5, 7]}
 
 
 def cargar_adultos():
@@ -73,15 +90,76 @@ def curva_captura(y_real, puntaje, puntos=101):
     return fracciones.tolist(), capturado
 
 
-def crear_pipeline():
+def crear_pipeline(variables=VARS_SIN_LAB, tipo="logistica", C=C_REGULARIZACION, n_knots=5):
+    if tipo == "logistica":
+        return Pipeline([
+            ("imputar", SimpleImputer(strategy="median")),
+            ("escalar", StandardScaler()),
+            ("modelo", LogisticRegression(C=C, max_iter=1000)),
+        ])
+    lineales = [v for v in variables if v not in VARS_SPLINE]
     return Pipeline([
-        ("imputar", SimpleImputer(strategy="median")),
-        ("escalar", StandardScaler()),
-        ("modelo", LogisticRegression(C=C_REGULARIZACION, max_iter=1000)),
+        ("preparar", ColumnTransformer([
+            ("splines", Pipeline([("imputar", SimpleImputer(strategy="median")),
+                                  ("spline", SplineTransformer(n_knots=n_knots, degree=3))]), VARS_SPLINE),
+            ("lineales", Pipeline([("imputar", SimpleImputer(strategy="median")),
+                                   ("escalar", StandardScaler())]), lineales),
+            ("interaccion", Pipeline([("imputar", SimpleImputer(strategy="median")), ("escalar", StandardScaler()),
+                                      ("producto", PolynomialFeatures(degree=2, interaction_only=True,
+                                                                      include_bias=False))]), VARS_SPLINE),
+        ])),
+        ("modelo", LogisticRegression(C=C, max_iter=3000)),
     ])
 
 
+def _variables_de_columna(nombre, variables):
+    """Variables originales de las que sale una columna transformada (p. ej. 'Edad Cintura_cm')."""
+    nombre = nombre.split("__", 1)[-1]
+    return [v for v in variables if any(t == v or t.startswith(v + "_sp_") for t in nombre.split(" "))]
+
+
+def explicacion(modelo, X_train, variables):
+    """Datos para descomponer el logit en aportes por variable (ver docstring del módulo)."""
+    transformar, logistica = modelo[:-1], modelo[-1]
+    nombres = list(transformar.get_feature_names_out(variables))
+    media = transformar.transform(X_train).mean(axis=0)
+    coef = logistica.coef_[0]
+    return {
+        "columnas": nombres,
+        "variables_por_columna": [_variables_de_columna(n, variables) for n in nombres],
+        "media_columnas": media.tolist(),
+        "logit_referencia": float(logistica.intercept_[0] + coef @ media),
+    }
+
+
+def aportes(modelo, info, fila):
+    """Aporte de cada variable al logit de `fila` (DataFrame de una fila), frente a la persona promedio."""
+    exp = info["explicacion"]
+    variables = info["variables"]
+    z = modelo[:-1].transform(fila[variables])[0] - np.asarray(exp["media_columnas"])
+    termino = modelo[-1].coef_[0] * z
+    salida = dict.fromkeys(variables, 0.0)
+    for t, vs in zip(termino, exp["variables_por_columna"]):
+        for v in vs:
+            salida[v] += float(t) / len(vs)
+    return salida
+
+
+def efectos_p25_p75(modelo, adultos, variables):
+    """Odds ratio al pasar cada variable del percentil 25 al 75 (sexo: hombre a mujer), resto en la mediana."""
+    base = {v: float(adultos[v].median()) for v in variables}
+    salida = {}
+    for v in variables:
+        bajo, alto = (0.0, 1.0) if v == "Mujer" else (float(adultos[v].quantile(.25)), float(adultos[v].quantile(.75)))
+        X = pd.DataFrame([{**base, v: bajo}, {**base, v: alto}])[variables]
+        p = modelo.predict_proba(X)[:, 1]
+        salida[v] = {"desde": bajo, "hasta": alto, "odds_ratio": float((p[1] / (1 - p[1])) / (p[0] / (1 - p[0])))}
+    return salida
+
+
 def _codigo_version():
+    if os.environ.get("VERSION_CODIGO"):  # dentro de Docker no hay .git: se pasa al construir
+        return os.environ["VERSION_CODIGO"]
     try:
         salida = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=RAIZ,
                                 capture_output=True, text=True, timeout=5)
@@ -96,12 +174,18 @@ def entrenar_escenario(adultos, variables):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.20, stratify=y, random_state=SEMILLA)
 
-    modelo = crear_pipeline().fit(X_train, y_train)
+    tipo = TIPO_MODELO["con_lab" if len(variables) == len(VARS_CON_LAB) else "sin_lab"]
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEMILLA)
+    hiper = {"C": C_REGULARIZACION}
+    if tipo == "splines_interaccion":
+        grid = GridSearchCV(crear_pipeline(variables, tipo), REJILLA_SPLINES, cv=cv, n_jobs=-1,
+                            scoring=make_scorer(recall_al_k, response_method="predict_proba")).fit(X_train, y_train)
+        hiper = {"C": grid.best_params_["modelo__C"], "n_knots": grid.best_params_["preparar__splines__spline__n_knots"]}
+    modelo = crear_pipeline(variables, tipo, **hiper).fit(X_train, y_train)
 
     # umbral: probabilidad que deja al 40 % de la población por arriba, calculada
     # con predicciones fuera de muestra del entrenamiento
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEMILLA)
-    oof = cross_val_predict(crear_pipeline(), X_train, y_train, cv=cv, method="predict_proba")[:, 1]
+    oof = cross_val_predict(crear_pipeline(variables, tipo, **hiper), X_train, y_train, cv=cv, method="predict_proba")[:, 1]
     umbral = float(np.quantile(oof, 1 - FRACCION))
 
     # evaluación en la prueba (se usa una sola vez)
@@ -120,9 +204,10 @@ def entrenar_escenario(adultos, variables):
     x_curva, y_curva = curva_captura(y_test, p_test)
     _, y_curva_edad = curva_captura(y_test, X_test["Edad"].values)
 
-    coef = modelo.named_steps["modelo"].coef_[0]
     meta = {
         "variables": variables,
+        "tipo_modelo": tipo,
+        "hiperparametros": hiper,
         "umbral": umbral,
         "n_train": int(len(X_train)),
         "n_test": int(len(X_test)),
@@ -139,8 +224,8 @@ def entrenar_escenario(adultos, variables):
             "tp": tp, "fp": fp, "fn": fn, "tn": tn,
         },
         "curva_captura": {"fraccion": x_curva, "modelo": y_curva, "edad_sola": y_curva_edad},
-        "coeficientes": dict(zip(variables, coef.tolist())),
-        "odds_ratio": dict(zip(variables, np.exp(coef).tolist())),
+        "efectos_p25_p75": efectos_p25_p75(modelo, adultos, variables),
+        "explicacion": explicacion(modelo, X_train, variables),
         "rangos": {v: {"min": float(adultos[v].min()), "p1": float(adultos[v].quantile(0.01)),
                        "mediana": float(adultos[v].median()), "p99": float(adultos[v].quantile(0.99)),
                        "max": float(adultos[v].max())} for v in variables},
@@ -178,7 +263,10 @@ def cargar_o_entrenar():
         try:
             modelos = {n: joblib.load(RUTA_MODELOS / f"modelo_{n}.joblib") for n in ESCENARIOS}
             metadatos = json.loads((RUTA_MODELOS / "metadatos.json").read_text(encoding="utf-8"))
-            return modelos, metadatos
+            # modelos de una versión anterior (otro tipo de modelo o sin datos de explicación): se reentrenan
+            if all(metadatos.get(n, {}).get("tipo_modelo") == TIPO_MODELO[n] and "explicacion" in metadatos[n]
+                   for n in ESCENARIOS):
+                return modelos, metadatos
         except Exception:
             pass  # archivos de otra versión de scikit-learn: se vuelven a entrenar
     return entrenar_todo(guardar=True)
@@ -189,7 +277,8 @@ if __name__ == "__main__":
     print(f"Adultos: {meta['n_adultos']:,} | positivos: {meta['n_positivos']:,} | semilla {meta['semilla']}")
     for nombre in ESCENARIOS:
         m = meta[nombre]["metricas_prueba"]
-        print(f"\n[{nombre}] {len(meta[nombre]['variables'])} variables | umbral {meta[nombre]['umbral']:.3f}")
+        print(f"\n[{nombre}] {meta[nombre]['tipo_modelo']} {meta[nombre]['hiperparametros']} | "
+              f"{len(meta[nombre]['variables'])} variables | umbral {meta[nombre]['umbral']:.3f}")
         print(f"  recall@40 % prueba: {m['recall_40']:.3f}  (edad sola: {m['recall_40_edad_sola']:.3f})"
               f" | IC95: {m['ic95_recall_40'][0]:.3f} a {m['ic95_recall_40'][1]:.3f}")
         print(f"  ROC-AUC {m['roc_auc']:.3f} | PR-AUC {m['pr_auc']:.3f} | priorizado {m['pct_priorizado']:.1%}")

@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.DS_Store
+models/
+mlruns/
+data/raw/*.xpt
+data/raw/NHANES_age_prediction.csv
+docs/mockup
+docs/capturas_tablero
+scripts
+*.ipynb
+.env
+*.pem

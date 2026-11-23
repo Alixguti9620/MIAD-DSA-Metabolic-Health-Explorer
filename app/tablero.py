@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from predictor import NOMBRES_VARIABLES, cargar_modelos, em, predecir  # noqa: E402
+from predictor import NOMBRES_VARIABLES, cargar_modelos, em, modo_prediccion, predecir, priorizar_lote  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 
@@ -347,7 +347,7 @@ def pagina_modelo(datos):
     st.markdown("&nbsp;")
 
     t1, t2, t3, t4, t5 = st.tabs(["Resultados", "Curva de captura", "Estabilidad (20 semillas)",
-                                  "Qué pesa en el modelo", "Evidencia MLflow"])
+                                  "Efecto de cada variable", "Evidencia MLflow"])
 
     with t1:
         st.caption("Evaluación en el 20 % de adultos que el modelo no vio al entrenar (1.222 personas, 180 con el diagnóstico).")
@@ -414,20 +414,53 @@ def pagina_modelo(datos):
         else:
             st.info("No se encontró reports/figures/supuestos_escenarios_recall_semillas.csv.")
 
+        ruta_rob = RAIZ / "reports" / "figures" / "robustez_splines_vs_logistica.csv"
+        ruta_par = RAIZ / "reports" / "figures" / "robustez_comparacion_pareada.csv"
+        if ruta_rob.exists() and ruta_par.exists():
+            st.markdown("#### Elección del modelo servido: logística simple frente a splines con interacción")
+            st.write("20 particiones nuevas, sin pesos de clase y buscando los hiperparámetros dentro de cada "
+                     "entrenamiento (`src/experimentos_robustez.py`).")
+            rob = pd.read_csv(ruta_rob)
+            rob = rob[rob["modelo"].isin(["Edad_sola", "Logistica_sin_pesos", "Splines_interaccion_sin_pesos"])].copy()
+            rob["modelo"] = rob["modelo"].map({"Edad_sola": "Solo la edad", "Logistica_sin_pesos": "Logística simple",
+                                               "Splines_interaccion_sin_pesos": "Splines con interacción"})
+            rob["escenario"] = rob["escenario"].map({"sin_lab": "Sin laboratorio", "con_lab": "Con laboratorio"})
+            tabla_rob = rob.set_index(["escenario", "modelo"])[
+                ["recall_40_test_media", "recall_40_test_min", "particiones_sobre_meta", "pr_auc_test_media"]]
+            tabla_rob.columns = ["Recall@40 % promedio", "Mínimo", "Particiones sobre la meta (de 20)", "PR-AUC"]
+            tabla_rob.index = [f"{e} · {m}" for e, m in tabla_rob.index]
+            tabla_rob["Particiones sobre la meta (de 20)"] = tabla_rob["Particiones sobre la meta (de 20)"].astype(int)
+            mostrar_tabla(tabla_rob, 3)
+            par = pd.read_csv(ruta_par)
+            for esc, titulo in (("sin_lab", "Sin laboratorio"), ("con_lab", "Con laboratorio")):
+                f = par[(par["escenario"] == esc) & (par["A"] == "Splines_interaccion_sin_pesos")].iloc[0]
+                st.write(f"**{titulo}:** los splines ganan en {int(f['A_gana'])} particiones, empatan en {int(f['empate'])} "
+                         f"y pierden en {int(f['B_gana'])} (diferencia media {num(f['dif_media'] * 100)} puntos, "
+                         f"Wilcoxon p = {f['p_wilcoxon']:.3f}).")
+            st.caption("Por eso se sirven splines con interacción sin laboratorio y la logística simple con laboratorio, "
+                       "donde los splines no mejoran.")
+
     with t4:
-        st.write("Cuánto cambian los 'odds' de tener el diagnóstico al subir una desviación estándar de cada variable "
-                 "(1 = sin efecto). Son asociaciones, no causas.")
+        st.write("Cuánto cambian los 'odds' de tener el diagnóstico al pasar cada variable del percentil 25 al 75 "
+                 "de los adultos (sexo: de hombre a mujer), con las demás en la mediana. 1 = sin efecto. "
+                 "Son asociaciones, no causas.")
         filas = []
         for clave, titulo in (("sin_lab", "Sin laboratorio"), ("con_lab", "Con laboratorio")):
-            for v, o in meta[clave]["odds_ratio"].items():
-                filas.append({"Escenario": titulo, "Variable": NOMBRES_VARIABLES[v], "Odds ratio": o})
+            for v, e in meta[clave]["efectos_p25_p75"].items():
+                filas.append({"Escenario": titulo, "Variable": NOMBRES_VARIABLES[v], "Odds ratio": e["odds_ratio"],
+                              "Rango": "hombre → mujer" if v == "Mujer" else f"{num(e['desde'])} → {num(e['hasta'])}"})
         dfo = pd.DataFrame(filas)
         fig = px.bar(dfo, y="Variable", x="Odds ratio", color="Escenario", barmode="group", orientation="h",
-                     color_discrete_map={"Sin laboratorio": TEAL, "Con laboratorio": CORAL})
+                     hover_data={"Rango": True}, color_discrete_map={"Sin laboratorio": TEAL, "Con laboratorio": CORAL})
         fig.add_vline(x=1, line_color="#0F172A", line_width=1)
         st.plotly_chart(diseno(fig, 430), use_container_width=True)
-        st.caption("El colesterol total sale con efecto contrario al que uno esperaría. Probablemente refleja que muchas "
-                   "personas ya diagnosticadas toman medicamentos que bajan el colesterol.")
+        tipos = {"splines_interaccion": "regresión logística con splines en edad y cintura e interacción edad × cintura",
+                 "logistica": "regresión logística"}
+        st.caption(f"Sin laboratorio: {tipos[meta['sin_lab']['tipo_modelo']]}. "
+                   f"Con laboratorio: {tipos[meta['con_lab']['tipo_modelo']]}. Con splines el efecto de la edad y de la "
+                   "cintura no es constante, por eso se mide entre dos percentiles. El colesterol total sale con efecto "
+                   "contrario al esperado; probablemente refleja que muchas personas ya diagnosticadas toman medicamentos "
+                   "que bajan el colesterol.")
 
     with t5:
         carpeta = RAIZ / "docs" / "evidencias_mlflow"
@@ -451,10 +484,94 @@ def pagina_modelo(datos):
 """)
 
 
+# ----------------------------------------------------------------------------- pantalla lotes
+COLUMNAS_LOTE = ["Id", "Edad", "Mujer", "IMC", "Cintura_cm", "Presion_Sistolica", "Presion_Diastolica",
+                 "Colesterol_Total", "Colesterol_HDL"]
+
+
+def pagina_lotes(datos):
+    encabezado("Priorización por lotes",
+               "Carga una lista de personas y obtén el ranking: se marca al 40 % con mayor probabilidad.")
+    st.caption(f"Predicciones: {modo_prediccion()}")
+
+    with st.expander("Cómo debe ser el archivo", expanded=False):
+        st.markdown("""
+CSV con una fila por persona y estas columnas (los nombres deben ser exactos):
+`Edad`, `Mujer` (1 = mujer, 0 = hombre), `IMC`, `Cintura_cm`, `Presion_Sistolica`, `Presion_Diastolica`.
+Opcionales: `Id` (para reconocer a la persona) y `Colesterol_Total`, `Colesterol_HDL`.
+Si **todas** las filas traen colesterol se usa el escenario con laboratorio; si **ninguna**, el escenario sin laboratorio.
+""")
+        ejemplo = pd.DataFrame([
+            ["A001", 62, 1, 33.1, 108, 142, 84, None, None], ["A002", 28, 0, 22.4, 80, 112, 70, None, None],
+            ["A003", 51, 0, 29.8, 101, 130, 86, None, None], ["A004", 70, 1, 27.0, 95, 150, 78, None, None],
+            ["A005", 39, 1, 35.2, 112, 124, 80, None, None]], columns=COLUMNAS_LOTE)
+        st.download_button("Descargar archivo de ejemplo", ejemplo.dropna(axis=1).to_csv(index=False).encode("utf-8"),
+                           "ejemplo_lote.csv", "text/csv")
+
+    archivo = st.file_uploader("Archivo CSV", type="csv")
+    escenario_txt = st.radio("Escenario", ["Automático", "Sin laboratorio", "Con laboratorio"], horizontal=True,
+                             help="Automático: lo decide según si el archivo trae colesterol.")
+    escenario = {"Automático": "auto", "Sin laboratorio": "sin_lab", "Con laboratorio": "con_lab"}[escenario_txt]
+    if archivo is None:
+        st.info("Carga un CSV para ver el ranking.")
+        return
+    try:
+        tabla = pd.read_csv(archivo)
+    except Exception:
+        st.error("No se pudo leer el archivo como CSV.")
+        return
+    if escenario == "sin_lab":  # se ignora el laboratorio aunque venga en el archivo
+        tabla = tabla.drop(columns=[c for c in ("Colesterol_Total", "Colesterol_HDL") if c in tabla.columns])
+    try:
+        res = priorizar_lote(tabla, escenario)
+    except ValueError as e:
+        st.error("El archivo tiene datos que no se pueden usar:")
+        for linea in (e.args[0] if isinstance(e.args[0], list) else [e.args[0]]):
+            st.write(f"- {linea}")
+        return
+    except Exception as e:  # API caída, tiempo agotado, etc.
+        st.error(f"No se pudo obtener la predicción ({type(e).__name__}). Revisa que la API esté activa.")
+        return
+
+    ranking = pd.DataFrame(res["resultados"])
+    c1, c2, c3 = st.columns(3)
+    c1.markdown(kpi("Personas", num(res["n"], 0), f"escenario {'con' if res['escenario'] == 'con_lab' else 'sin'} laboratorio"),
+                unsafe_allow_html=True)
+    c2.markdown(kpi("Priorizadas (40 % de la lista)", num(res["n_priorizados_lote"], 0),
+                    "las de mayor probabilidad del archivo"), unsafe_allow_html=True)
+    c3.markdown(kpi("Sobre el umbral del modelo", num(res["n_priorizados_umbral"], 0),
+                    f"probabilidad ≥ {num(res['umbral'] * 100)} % (umbral de la población de entrenamiento)"),
+                unsafe_allow_html=True)
+    st.markdown("&nbsp;")
+
+    salida = tabla.reset_index(drop=True).copy()
+    salida.index = salida.index + 1
+    salida = salida.loc[ranking["fila"]].copy()
+    salida.insert(0, "Posición", ranking["posicion"].values)
+    salida["Probabilidad (%)"] = (ranking["probabilidad"].values * 100).round(1)
+    salida["Priorizada (40 % de la lista)"] = np.where(ranking["prioriza_lote"].values, "Sí", "No")
+    salida["Sobre el umbral"] = np.where(ranking["prioriza_umbral"].values, "Sí", "No")
+    salida["Advertencias"] = ["; ".join(a) for a in ranking["advertencias"]]
+    st.markdown("### Ranking")
+    mostrar_tabla(salida.head(200).reset_index(drop=True), 1)
+    if len(salida) > 200:
+        st.caption(f"Se muestran las primeras 200 de {len(salida)} filas. Descarga el archivo para ver todas.")
+    st.download_button("Descargar ranking (CSV)", salida.to_csv(index=False).encode("utf-8"), "ranking_priorizacion.csv", "text/csv")
+
+    fig = px.histogram(ranking, x=ranking["probabilidad"] * 100, nbins=30, color=np.where(ranking["prioriza_lote"], "Priorizada", "No priorizada"),
+                       color_discrete_map={"Priorizada": CORAL, "No priorizada": TEAL})
+    fig.add_vline(x=res["umbral"] * 100, line_dash="dash", line_color="#0F172A", annotation_text="Umbral del modelo")
+    fig.update_layout(xaxis_title="Probabilidad estimada (%)", yaxis_title="Personas", legend_title="")
+    st.plotly_chart(diseno(fig, 330), use_container_width=True)
+    st.markdown('<div class="aviso"><b>Importante:</b> el 40 % se calcula sobre <i>esta lista</i>. Sirve para ordenar a quién ofrecer '
+                'primero la prueba de laboratorio, no para diagnosticar. El modelo aprende de diagnósticos autorreportados y no usa '
+                'los pesos muestrales de NHANES.</div>', unsafe_allow_html=True)
+
+
 # ----------------------------------------------------------------------------- navegación
 datos = cargar_datos()
 st.sidebar.markdown("## 🩺 Metabolic Health Explorer")
-PANTALLAS = ["Exploración", "Simulador", "Modelo y datos"]
+PANTALLAS = ["Exploración", "Simulador", "Priorización por lotes", "Modelo y datos"]
 # se puede abrir una pantalla directo con ?pantalla=Simulador en la URL
 inicial = st.query_params.get("pantalla", PANTALLAS[0])
 pantalla = st.sidebar.radio("Pantalla", PANTALLAS, index=PANTALLAS.index(inicial) if inicial in PANTALLAS else 0,
@@ -465,6 +582,8 @@ if pantalla == "Exploración":
     pagina_exploracion(datos)
 elif pantalla == "Simulador":
     pagina_simulador(datos)
+elif pantalla == "Priorización por lotes":
+    pagina_lotes(datos)
 else:
     pagina_modelo(datos)
 
