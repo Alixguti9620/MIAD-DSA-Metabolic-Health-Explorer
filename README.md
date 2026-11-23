@@ -146,7 +146,7 @@ En comparación pareada (misma partición), sin laboratorio los splines ganan en
 
 Ambos van **sin** pesos de clase para que la probabilidad mostrada no salga inflada. Frente a la edad sola, los modelos ganan de 5 a 8 puntos de recall en promedio y cumplen la meta en 19 o 20 de 20 particiones; la edad sola la cumple en 6. Los resultados están en `reports/figures/robustez_*.csv`.
 
-Los experimentos oficiales de la entrega son los registrados en el servidor MLflow de AWS EC2 (capturas en `docs/evidencias_mlflow/`).
+Los experimentos oficiales de la entrega son los registrados en el servidor MLflow de AWS EC2 (capturas en `docs/evidencias_entrega_final/mlflow/`).
 
 ### Evidencias finales de MLflow
 
@@ -346,7 +346,7 @@ El desarrollo se hace mediante ramas, commits individuales y Pull Requests revis
 | Maqueta del prototipo | Dos opciones documentadas; **capturas y HTML pendientes de actualizar** con las variables nuevas |
 | DVC | Seguimiento del conjunto de la Entrega 1; remoto y datos nuevos por configurar |
 | Modelos supervisados (referencia, regresión logística, splines, árboles) | Listos (cuadernos 07 y 08) |
-| Experimentos en MLflow (servidor en AWS EC2) | Registrados (cuaderno `07_modelos_mlflow_ec2`; capturas en `docs/evidencias_mlflow/`) |
+| Experimentos en MLflow (servidor en AWS EC2) | Registrados (cuaderno `07_modelos_mlflow_ec2` y scripts de `src/`; capturas en `docs/evidencias_entrega_final/mlflow/`) |
 | API con FastAPI | Lista (`api/`, 20 pruebas), con priorización por lotes |
 | Tablero con Streamlit | Listo (`app/tablero.py`), con pantalla de lotes; consume la API |
 | Contenedores Docker | Listos y probados en local (`docker-compose.yml`) |

@@ -16,7 +16,7 @@ COPY app/ app/
 COPY .streamlit/ .streamlit/
 COPY data/raw/NHANES_consolidado.csv data/raw/NHANES_consolidado.csv
 COPY reports/figures/ reports/figures/
-COPY docs/evidencias_mlflow/ docs/evidencias_mlflow/
+COPY docs/evidencias_entrega_final/mlflow/ docs/evidencias_entrega_final/mlflow/
 
 # Metadatos y metricas que muestra la pantalla "Modelo y datos".
 RUN python src/entrenar_modelos.py

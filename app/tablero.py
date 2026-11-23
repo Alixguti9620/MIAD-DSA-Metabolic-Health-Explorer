@@ -463,15 +463,16 @@ def pagina_modelo(datos):
                    "que bajan el colesterol.")
 
     with t5:
-        carpeta = RAIZ / "docs" / "evidencias_mlflow"
+        carpeta = RAIZ / "docs" / "evidencias_entrega_final" / "mlflow"
         imagenes = sorted(carpeta.glob("*.jp*g")) + sorted(carpeta.glob("*.png")) if carpeta.exists() else []
         if imagenes:
-            st.write("Experimentos registrados en MLflow, en un servidor de AWS EC2.")
+            st.write("Experimentos registrados en MLflow, en un servidor de AWS EC2: el experimento final "
+                     "(8 corridas, partición 60/20/20) y el de robustez (20 particiones).")
             for ruta in imagenes:
-                pie = re.sub(r"^mlflow_ec2_\d+_", "", ruta.stem).replace("_", " ").capitalize()
+                pie = re.sub(r"^\d+_", "", ruta.stem).replace("_", " ").capitalize()
                 st.image(str(ruta), caption=pie, use_container_width=True)
         else:
-            st.info("Aún no hay capturas en docs/evidencias_mlflow.")
+            st.info("Aún no hay capturas en docs/evidencias_entrega_final/mlflow.")
 
     with st.expander("Límites que hay que tener presentes"):
         st.markdown("""
