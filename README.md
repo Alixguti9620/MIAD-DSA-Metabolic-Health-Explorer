@@ -4,7 +4,7 @@
 **Materia:** Despliegue de Soluciones Analíticas  
 **Repositorio:** [MIAD-DSA-Metabolic-Health-Explorer](https://github.com/Alixguti9620/MIAD-DSA-Metabolic-Health-Explorer)
 
-> **Estado: Entrega final (prototipo funcional).** Incluye modelos entrenados, experimentos en MLflow, una API REST con FastAPI, un tablero con Streamlit y contenedores Docker para desplegar ambos. Los soportes del despliegue en AWS y los manuales se agregan en `docs/` al completarse (ver la sección 15).
+> **Estado: Entrega final (prototipo funcional).** Incluye modelos entrenados, experimentos en MLflow, una API REST con FastAPI, un tablero con Streamlit y contenedores Docker para desplegar ambos. Los soportes del despliegue en AWS están en `docs/evidencias_entrega_final/` y los manuales de usuario e instalación en `docs/` (ver la sección 15).
 
 ## 1. Contexto y propósito
 
@@ -28,6 +28,8 @@ Documentación:
 - [02 — Pregunta de negocio y alcance](docs/02_pregunta_de_negocio_y_alcance.md)
 - [04 — Maqueta del prototipo](docs/04_maqueta_prototipo.md)
 - [05 — Estructura y trabajo en equipo](docs/05_estructura_y_trabajo_en_equipo.md)
+- [06 — Manual de usuario del tablero](docs/06_manual_de_usuario.md)
+- [07 — Manual de instalación](docs/07_manual_de_instalacion.md)
 - Exploración inicial de la Entrega 1: [`scripts/03_exploracion_inicial_nhanes.ipynb`](scripts/03_exploracion_inicial_nhanes.ipynb)
 - Exploración complementaria de la Entrega 2: [`scripts/06_Exploracion_complementaria_nhanes.ipynb`](scripts/06_Exploracion_complementaria_nhanes.ipynb)
 - Modelos iniciales de la Entrega 2 (con y sin laboratorio): [`scripts/07_modelos_iniciales_v1.ipynb`](scripts/07_modelos_iniciales_v1.ipynb)
@@ -260,6 +262,9 @@ MIAD-DSA-Metabolic-Health-Explorer/
 │   ├── 02_pregunta_de_negocio_y_alcance.md
 │   ├── 04_maqueta_prototipo.md
 │   ├── 05_estructura_y_trabajo_en_equipo.md
+│   ├── 06_manual_de_usuario.md
+│   ├── 07_manual_de_instalacion.md
+│   ├── evidencias_entrega_final/         # Capturas de AWS, tablero, API y MLflow
 │   └── mockup/                           # Maquetas HTML y capturas (opciones A y B)
 ├── scripts/
 │   ├── 03_exploracion_inicial_nhanes.ipynb          # EDA de la Entrega 1 (conjunto UCI)
@@ -343,7 +348,7 @@ El desarrollo se hace mediante ramas, commits individuales y Pull Requests revis
 |---|---|
 | Contexto, problema, pregunta de negocio y criterio de éxito | Actualizados para la Entrega 2 |
 | Datos consolidados y exploración (EDA) | Completos (notebook 06) |
-| Maqueta del prototipo | Dos opciones documentadas; **capturas y HTML pendientes de actualizar** con las variables nuevas |
+| Maqueta del prototipo | Dos opciones documentadas (Entrega 2); el tablero final sigue la opción A
 | DVC | Seguimiento del conjunto de la Entrega 1; remoto y datos nuevos por configurar |
 | Modelos supervisados (referencia, regresión logística, splines, árboles) | Listos (cuadernos 07 y 08) |
 | Experimentos en MLflow (servidor en AWS EC2) | Registrados (cuaderno `07_modelos_mlflow_ec2` y scripts de `src/`; capturas en `docs/evidencias_entrega_final/mlflow/`) |
@@ -352,7 +357,7 @@ El desarrollo se hace mediante ramas, commits individuales y Pull Requests revis
 | Contenedores Docker | Listos y probados en local (`docker-compose.yml`) |
 | Despliegue en AWS (EC2) | Hecho: API y tablero con Docker en EC2 (evidencias en `docs/evidencias_entrega_final/`) |
 | Experimentos oficiales en MLflow (EC2) con `experimentos_mlflow.py` y `experimentos_robustez.py` | Hechos: 8 corridas finales y 11 de robustez |
-| Manual de usuario y manual de instalación | Pendientes |
+| Manual de usuario y manual de instalación | Listos (`docs/06_manual_de_usuario.md` y `docs/07_manual_de_instalacion.md`) |
 | Variable objetivo con hemoglobina glicosilada | Trabajo futuro (limitación declarada) |
 
 Versionado propuesto: `0.1.0` documentación inicial, `0.2.0` modelado, `0.3.0` API, `0.4.0` tablero, `0.5.0` Docker y `1.0.0` prototipo final. Las versiones no están liberadas todavía.
