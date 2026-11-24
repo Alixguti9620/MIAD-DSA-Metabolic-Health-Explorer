@@ -147,6 +147,8 @@ A002,28,0,22.4,80,112,70
 
 ![Carga del archivo](evidencias_entrega_final/tablero/04_lotes_carga_archivo.png)
 
+- En el repositorio hay dos archivos listos para probar: [`docs/ejemplos/lote_sin_laboratorio.csv`](ejemplos/lote_sin_laboratorio.csv) y [`docs/ejemplos/lote_con_laboratorio.csv`](ejemplos/lote_con_laboratorio.csv).
+
 ### 6.2 Obtener el ranking
 
 1. Arrastre el archivo a Archivo CSV o haga clic en Browse files.
