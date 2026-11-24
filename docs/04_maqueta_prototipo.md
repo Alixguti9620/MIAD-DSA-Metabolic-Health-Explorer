@@ -26,7 +26,7 @@ Se elaboraron **dos alternativas**. Ambas cubren los tres módulos del alcance f
 
 **Origen de las cifras.** Los conteos, medianas y tasas por categoría provienen del análisis exploratorio complementario sobre los 6.110 adultos del conjunto consolidado NHANES 2013-2014 (902 casos, 14,8 %). Las probabilidades, percentiles y coeficientes mostrados en las maquetas son **ilustrativos**, y las métricas del modelo se completan con los resultados de MLflow una vez entrenado.
 
-**Nota sobre las capturas.** Las imágenes de las pantallas y los archivos HTML de las maquetas muestran todavía la versión de la Entrega 1 (glucosa, insulina, actividad física y 21 casos). Las tablas de esta sección ya describen el contenido actualizado, y las maquetas deben regenerarse con las variables y cifras nuevas antes de usarlas como referencia del tablero.
+**Nota sobre las capturas.** Las imágenes y los HTML de las maquetas corresponden a la Entrega 1 (glucosa, insulina, actividad física y 21 casos) y se conservan como registro del diseño. El tablero final implementa la opción A con las variables y cifras nuevas; sus pantallas están en `docs/evidencias_entrega_final/tablero/` (ver la sección «Del prototipo al tablero final»).
 
 **Archivos fuente.** Las maquetas son HTML editables: [`mockup/maqueta_prototipo.html`](mockup/maqueta_prototipo.html) (opción A) y [`mockup/opcion_b/maqueta_opcion_b.html`](mockup/opcion_b/maqueta_opcion_b.html) (opción B). Si se añade al final de la URL `#p1`, `#p2`, `#p3`, `#arq` (A) o `#b1`, `#b2`, `#b3` (B), se muestra solo esa pantalla.
 
@@ -141,3 +141,20 @@ La arquitectura es la misma para ambas opciones; solo cambia la organización de
 - **Resultado con su variabilidad.** Se muestra el promedio de varias particiones junto con el de la partición base, porque el recall cambia varios puntos de una partición a otra.
 - **Trazabilidad.** Se muestran la versión del modelo y de los datos (DVC) y el estado de la API.
 
+## Del prototipo al tablero final
+
+El tablero desplegado (`app/tablero.py`) sigue la **opción A, por pestañas**. La tabla resume qué se conservó y qué cambió.
+
+| Maqueta (opción A) | Tablero final | Cambios |
+|---|---|---|
+| Módulo A, descriptivo | **Exploración** | Filtros de edad y sexo, tasas por edad e IMC, mapa de calor edad × IMC, comparación de medianas y raza/etnia solo como descripción |
+| Módulo B, predictivo (vía API) | **Simulador** | Escenarios sin y con laboratorio, perfiles de ejemplo, aporte de cada variable y percentiles del perfil |
+| — | **Priorización por lotes** | Pantalla nueva: carga un CSV, ordena la lista y marca al 40 %. Responde directamente a la pregunta de negocio (planear una campaña con una lista real) |
+| Módulo C, transparencia | **Modelo y datos** | Métricas en prueba, curva de captura, estabilidad en 20 particiones, efecto de cada variable y evidencia de MLflow |
+
+Capturas del tablero final:
+
+![Exploración](evidencias_entrega_final/tablero/01_exploracion.png)
+![Simulador](evidencias_entrega_final/tablero/02_simulador_sin_laboratorio.png)
+![Priorización por lotes](evidencias_entrega_final/tablero/05_lotes_ranking.png)
+![Modelo y datos](evidencias_entrega_final/tablero/07_modelo_resultados.png)
